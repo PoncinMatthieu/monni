@@ -1,0 +1,12 @@
+
+{% extends "layout.html" %}
+
+{% block body %}
+<ul class=events>
+  {% for service in services %}
+  <li><a href="/service/{{ service }}">{{ service }}</a>
+  {% else %}
+  <li><em>Unbelievable. No services here so far</em></li>
+  {% endfor %}
+</ul>
+{% endblock %}

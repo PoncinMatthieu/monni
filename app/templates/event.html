@@ -1,0 +1,12 @@
+
+{% extends "layout.html" %}
+
+{% block body %}
+<h2>{{ event.sid }} : {{ event.type }}</h2>
+<h4>Date:</h4> {{ event.date }}
+<h4>Data:</h4> {{ event.dataType }} </br></br>
+<div>
+  {{ event.data }}
+</div>
+
+{% endblock %}

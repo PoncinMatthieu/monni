@@ -1,0 +1,12 @@
+
+{% extends "layout.html" %}
+
+{% block body %}
+<ul class=events>
+  {% for event in events %}
+  <li><a href="/event/{{ event.id }}">{{ event.date|safe }} : {{ event.sid|safe }} : {{ event.type|safe }}</a> <a href="/event/del/{{ event.id }}">delete</a></li>
+  {% else %}
+  <li><em>Unbelievable. No event here so far</em></li>
+  {% endfor %}
+</ul>
+{% endblock %}
