@@ -1,7 +1,7 @@
 
-import datetime
 from functools import wraps
 from flask import session, url_for, request, Response
+from bson import json_util
 
 from app import app
 from db.model import Event
@@ -44,14 +44,16 @@ def requiresAuth(f):
 def apiIndex():
 	return 'Monni api is up and running.'
 
+@app.route('/api/auth')
+@requiresAuth
+def apiAuth():
+	return 'Authentication successful'
+
 @app.route('/api/event/<type>', methods=['POST'])
 @requiresAuth
-def newEvent(type):
-	date = request.json['date'] if 'date' in request.json else datetime.datetime.now()
-	duration = request.json['duration'] if 'duration' in request.json else None
-	dataType = request.json['dataType'] if 'dataType' in request.json else None
-	data = request.json['data'] if 'data' in request.json else None
-	e = Event(session['sid'], type, date, duration, dataType, data)
+def apiNewEvent(type):
+	# get json with json_util from bson module so that types matches with mongo types.
+	e = Event(session['sid'], type, json_util.loads(request.data))
 	e.Insert()
 	return 'ok'
 

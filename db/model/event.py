@@ -1,4 +1,5 @@
 
+import datetime
 import json
 from bson import json_util, ObjectId
 
@@ -16,21 +17,21 @@ class Event():
 	@staticmethod
 	def FetchAllEvents(projection = None):
 		events = []
-		for e in db.events.find({}, projection).sort('date',-1):
+		for e in db.events.find({}, projection).sort('time',-1):
 			events.append(Event.Clone(e))
 		return events
 
 	@staticmethod
 	def FetchEventsFrom(sid, projection = None):
 		events = []
-		for e in db.events.find({'sid': sid}, projection).sort('date',-1):
+		for e in db.events.find({'sid': sid}, projection).sort('time',-1):
 			events.append(Event.Clone(e))
 		return events
 
 	@staticmethod
 	def FetchEventsOfType(type, projection = None):
 		events = []
-		for e in db.events.find({'type': type}, projection).sort('date',-1):
+		for e in db.events.find({'type': type}, projection).sort('time',-1):
 			events.append(Event.Clone(e))
 		return events
 
@@ -42,24 +43,37 @@ class Event():
 	def Clone(data):
 		if data == None:
 			return None
-		return Event(data['sid'], data['type'], data['date'], data['duration'], data['dataType'], data['data'], data['_id'])
+		return Event(data['sid'], data['type'], data, data['_id'])
 
-	def __init__(self, sid = None, type = None, date = None, duration = None, dataType = None, data = None, id = None):
+	def __init__(self, sid = None, type = None, datas = {}, id = None):
+		if 'time' not in datas:
+			datas['time'] = datetime.datetime.now()
+		if 'sid' in datas:
+			del datas['sid']
+		if 'type' in datas:
+			del datas['type']
+		if '_id' in datas:
+			del datas['_id']
+
 		self.id = id
 		self.sid = sid
 		self.type = type
-		self.date = date
-		self.duration = duration
-		self.dataType = dataType
-		self.data = data
+		self.datas = datas
 
 	def Insert(self):
-		db.events.insert({'sid': self.sid, 'type': self.type, 'date': self.date, 'duration': self.duration, 'dataType': self.dataType, 'data': self.data})
+		data = self.datas
+		data['sid'] = self.sid
+		data['type'] = self.type
+		return db.events.insert(data)
 
 	def Update(self, id = None):
 		if id == None:
 			id = self.id
-		db.events.update({'_id': ObjectId(id)}, {'$set': {'sid': self.sid, 'type': self.type, 'date': self.date, 'duration': self.duration, 'dataType': self.dataType, 'data': self.data}})
+
+		data = self.datas
+		data['sid'] = self.sid
+		data['type'] = self.type
+		db.events.update({'_id': ObjectId(id)}, {'$set': data})
 
 	def Delete(self, id = None):
 		if id == None:

@@ -1,12 +1,19 @@
 
+
+<script src="http://code.jquery.com/jquery-2.1.1.min.js"></script>
+
 {% extends "layout.html" %}
 
 {% block body %}
-<h2>{{ event.sid }} : {{ event.type }}</h2>
-<h4>Date:</h4> {{ event.date }}
-<h4>Data:</h4> {{ event.dataType }} </br></br>
-<div>
-  {{ event.data }}
-</div>
+<h2>{{ event.sid|safe }} : {{ event.type|safe }}</h2>
+
+<pre id="event-data">
+</pre>
+
+<script type="text/javascript">
+  var json = {{ event.datas_dump|safe }};
+  console.log(JSON.stringify(json, undefined, 2));
+  $("#event-data").html(JSON.stringify(json, undefined, 2));
+</script>
 
 {% endblock %}

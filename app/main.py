@@ -1,6 +1,8 @@
 
+import json
 from functools import wraps
 from flask import render_template, redirect, request, session, flash, url_for
+from bson import json_util, ObjectId
 
 from app import app
 from db.model import Event
@@ -35,6 +37,7 @@ def event(eid):
 	e = Event.FetchEventWithId(eid)
 	if e == None:
 		return 'This event doesn\'t exist', 404
+	e.datas_dump = json.dumps(e.datas, default=json_util.default)
 	return render_template('event.html', event=e)
 
 @app.route('/login', methods=['GET', 'POST'])
