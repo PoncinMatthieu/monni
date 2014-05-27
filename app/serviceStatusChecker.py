@@ -8,7 +8,7 @@ from flask import session, url_for, request, Response
 from bson import json_util
 
 from app import app
-from db.model import Service
+from model import Service
 
 serviceLock = threading.Lock()
 services = []

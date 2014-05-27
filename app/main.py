@@ -5,8 +5,8 @@ from flask import render_template, redirect, request, session, flash, url_for
 from bson import json_util, ObjectId
 
 from app import app
-from db.model import Service
-from db.model import Event
+from model import Service
+from model import Event
 from app.serviceStatusChecker import services
 
 # Authentication
@@ -22,6 +22,10 @@ def requiresLogin(f):
 def routeIndex():
 	eventServices = app.config['SERVICES']
 	return render_template('index.html', services=services, eventServices=eventServices)
+
+@app.route('/newservice')
+def routeNewService():
+	return render_template('newService.html')
 
 @app.route('/service/<sid>')
 @requiresLogin

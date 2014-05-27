@@ -2,11 +2,38 @@
 {% extends "layout.html" %}
 
 {% block body %}
-<h1 class="page-header">Services Status</h1>
+<h1 class="page-header">
+  Services Status
+  <div class="btn-group">
+    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+      <span class="glyphicon glyphicon-cog"></span>
+    </button>
+    <ul class="dropdown-menu">
+      <li><a href="{{ url_for('routeNewService') }}">Create new service</a></li>
+    </ul>
+  </div>
+</h1>
 <ul class="service-status">
-  {% for service in services %}
-  <li class="{% if service.status != 200  %}status-red{% else %}status-green{% endif %}">{{ service.data.name }}</li>
-  {% endfor %}
+  <div class="table-responsive">
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>Status</th>
+          <th>Name</th>
+          <th>Events</th>
+        </tr>
+      </thead>
+      <tbody>
+	{% for service in services %}
+        <tr>
+          <td><img src="{% if service.status != 200 %}{{ url_for('static', filename='img/status-red.png') }}{% else %}{{ url_for('static', filename='img/status-green.png') }}{% endif %}" alt="{{ service.status }}" /></td>
+          <td>{{ service.data.name }}</td>
+	  <td><a href="/service/{{ service.data.id }}">{{ service.data.id }}</a></td>
+        </tr>
+	{% endfor %}
+      </tbody>
+    </table>
+  </div>
 </ul>
 
 <h1 class="page-header">Service Events</h1>
