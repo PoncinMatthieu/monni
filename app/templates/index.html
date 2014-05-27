@@ -2,9 +2,17 @@
 {% extends "layout.html" %}
 
 {% block body %}
-<ul class=events>
+<h1 class="page-header">Services Status</h1>
+<ul class="service-status">
   {% for service in services %}
-  <li><a href="/service/{{ service }}">{{ service }}</a>
+  <li class="{% if service.status != 200  %}status-red{% else %}status-green{% endif %}">{{ service.data.name }}</li>
+  {% endfor %}
+</ul>
+
+<h1 class="page-header">Service Events</h1>
+<ul class=events>
+  {% for eventService in eventServices %}
+  <li><a href="/service/{{ eventService }}">{{ eventService }}</a>
   {% else %}
   <li><em>Unbelievable. No services here so far</em></li>
   {% endfor %}

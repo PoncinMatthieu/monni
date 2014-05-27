@@ -51,5 +51,6 @@ def handleDefaultExceptions(error):
 # Import whole application
 import main
 import api
+import serviceStatusChecker
 
 print("Server initialized")

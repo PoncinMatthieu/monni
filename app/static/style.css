@@ -1,18 +1,54 @@
-body            { font-family: sans-serif; background: #eee; }
+body { padding-top: 50px; }
+
+/* navbar */
+#header.navbar-inverse { background-color: #000000; border-color: #000000; }
+#header .navbar-brand {padding-top: 0px; }
+#header .navbar-brand img {height: 50px;}
+
+/*
+  Sidebar
+  Hide for mobile, show later
+*/
+.sidebar { display: none; }
+@media (min-width: 768px) {
+  .sidebar { position: fixed; top: 51px; bottom: 0; left: 0; z-index: 1000; display: block; padding: 20px;
+	     overflow-x: hidden; overflow-y: auto; background-color: #f5f5f5; border-right: 1px solid #eee; }
+}
+
+/* Sidebar navigation */
+.nav-sidebar { margin-right: -21px; margin-bottom: 20px; margin-left: -20px; }
+.nav-sidebar > li > a { padding-right: 20px; padding-left: 20px; }
+.nav-sidebar > .active > a { color: #fff; background-color: #428bca; }
+
+
+/* Services status */
+ul.service-status { list-style-type: none; padding: 0px; margin: 0px; }
+.service-status li.status-green { background-image: url(img/status-green.png); background-repeat: no-repeat; background-size:20px 20px; background-position: 0px 0px; padding-left: 30px; min-height:25px; margin-top: 10px; margin-bottom: 10px; }
+.service-status li.status-red { background-image: url(img/status-red.png); background-repeat: no-repeat; background-size:20px 20px; background-position: 0px 0px; padding-left: 30px; min-height:25px; margin-top: 10px; margin-bottom: 10px; }
+
+
+
+/*
+#header         { background-color: black; }
+#header img     { width: 50%; }
 a, h1, h2       { color: #377BA8; }
 h1, h2          { font-family: 'Georgia', serif; margin: 0; }
 h1              { border-bottom: 2px solid #eee; }
 h2              { font-size: 1.2em; }
+.clear          { clear: both; }
 
-.page           { margin: 2em auto; width: 35em; border: 5px solid #ccc;
-                  padding: 0.8em; background: white; }
+#page           { margin: 2em auto; width: 800px; border: 5px solid #ccc;
+                  background: white; }
+#metanav        { text-align: right; font-size: 0.8em; padding: 0.3em;
+                  margin-bottom: 1em; background: #fafafa; }
+#body           { float: left; width: 550px; margin: 0.8em; }
+
+#sidebar        { float: left; width: 200px; border-right: 1px solid #ccc; padding: 10px; }
+
+
 .events         { list-style: none; margin: 0; padding: 0; }
 .events li      { margin: 0.8em 1.2em; }
-.evemts li h2   { margin-left: -1em; }
+.events li h2   { margin-left: -1em; }
 .add-event      { font-size: 0.9em; border-bottom: 1px solid #ccc; }
 .add-event dl   { font-weight: bold; }
-.metanav        { text-align: right; font-size: 0.8em; padding: 0.3em;
-                  margin-bottom: 1em; background: #fafafa; }
-.flash          { background: #CEE5F5; padding: 0.5em;
-                  border: 1px solid #AACBE2; }
-.error          { background: #F0D6D6; padding: 0.5em; }
+*/
