@@ -1,0 +1,50 @@
+
+{% extends "layout.html" %}
+
+{% block body %}
+<h1 class="page-header">Create new service</h1>
+
+<a href="{{ url_for('routeIndex') }}"><span class="glyphicon glyphicon-chevron-left" />Back</a>
+<form method="post" action="{{ url_for('routeNewService') }}" role="form">
+  <div class="panel panel-default">
+    <div class="panel-body">
+      <div class="form-group">
+	<label class="control-label">Name</label>
+	<input type="text" class="form-control" placeholder="name">
+      </div>
+      <div class="panel panel-default">
+	<div class="panel-heading">Events API</div>
+	<div class="panel-body">
+	  <div class="form-group">
+	    <label class="control-label">Id</label>
+	    <input type="text" class="form-control" placeholder="short name">
+	  </div>
+	  <div class="form-group">
+	    <label class="control-label">API key</label>
+	    <input type="text" class="form-control" placeholder="short name">
+	  </div>
+	</div>
+      </div>
+      <div class="panel panel-default">
+	<div class="panel-heading">Status checks</div>
+	<div class="panel-body">
+	  <div class="btn-group">
+	    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+	      None
+	      <span class="caret"></span>
+	    </button>
+	    <ul class="dropdown-menu">
+	      <li><a>None</a></li>
+	      <li><a>HTTP</a></li>
+	      <li class="disabled"><a>WebSocket</a></li>
+	      <li class="disabled"><a>Simple TCP</a></li>
+	      <li class="disabled"><a>Simple UDP</a></li>
+	    </ul>
+	  </div>
+	</div>
+      </div>
+      <button class="btn btn-default" type="submit">Submit</button>
+    </div>
+  </div>
+</form>
+{% endblock %}
