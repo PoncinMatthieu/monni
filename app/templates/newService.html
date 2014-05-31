@@ -5,41 +5,134 @@
 <h1 class="page-header">Create new service</h1>
 
 <a href="{{ url_for('routeIndex') }}"><span class="glyphicon glyphicon-chevron-left" />Back</a>
-<form method="post" action="{{ url_for('routeNewService') }}" role="form">
+<form class="" method="post" action="{{ url_for('routeNewService') }}" role="form" style="margin-bottom: 100px;">
   <div class="panel panel-default">
     <div class="panel-body">
+
+      <div class="form-horizontal">
       <div class="form-group">
-	<label class="control-label">Name</label>
-	<input type="text" class="form-control" placeholder="name">
+	<label for="inputName" class="control-label col-md-1">Name</label>
+	<div class="col-md-6">
+	  <input id="inputName" type="text" class="form-control" placeholder="name">
+	</div>
       </div>
+      </div>
+
+      <div class="form-horizontal">
       <div class="panel panel-default">
 	<div class="panel-heading">Events API</div>
 	<div class="panel-body">
 	  <div class="form-group">
-	    <label class="control-label">Id</label>
-	    <input type="text" class="form-control" placeholder="short name">
+	    <label for="inputAPIID" class="control-label col-md-2">Id</label>
+	    <div class="col-md-6">
+	      <input id="inputAPIID" type="text" class="form-control" placeholder="short name">
+	    </div>
 	  </div>
 	  <div class="form-group">
-	    <label class="control-label">API key</label>
-	    <input type="text" class="form-control" placeholder="short name">
+	    <label for="inputAPIKey" class="control-label col-md-2">API key</label>
+	    <div class="col-md-6">
+	      <input id="inputAPIKey" type="password" class="form-control" placeholder="password">
+	    </div>
 	  </div>
 	</div>
       </div>
+      </div>
+
       <div class="panel panel-default">
 	<div class="panel-heading">Status checks</div>
 	<div class="panel-body">
-	  <div class="btn-group">
+	  <div class="btn-group checks-type">
 	    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
 	      None
 	      <span class="caret"></span>
 	    </button>
 	    <ul class="dropdown-menu">
-	      <li><a>None</a></li>
-	      <li><a>HTTP</a></li>
-	      <li class="disabled"><a>WebSocket</a></li>
-	      <li class="disabled"><a>Simple TCP</a></li>
-	      <li class="disabled"><a>Simple UDP</a></li>
+	      <li class="active button-none" data-target="#collapseNone"><a class="btn">None</a></li>
+	      <li class="button-http" data-target="#collapseHTTP"><a class="btn">HTTP</a></li>
+	      <li class="disabled"><a class="btn">WebSocket</a></li>
+	      <li class="disabled"><a class="btn">Simple TCP</a></li>
+	      <li class="disabled"><a class="btn">Simple UDP</a></li>
 	    </ul>
+	  </div>
+
+	  <div id="collapseNone" class="form-status-check collapse in"></div>
+	  <div id="collapseHTTP" class="form-status-check collapse collapse">
+
+	    <div class="form-horizontal">
+	      <div class="form-group">
+		<label for="inputHTTPMethod" class="control-label col-md-2">Method</label>
+		<div class="col-md-6">
+		  <input id="inputHTTPMethod" type="text" class="form-control" value="GET">
+		</div>
+	      </div>
+	      <div class="form-group">
+		<label for="inputHTTPUrl" class="control-label col-md-2">Url</label>
+		<div class="col-md-6">
+		  <input id="inputHTTPUrl" type="url" class="form-control" placeholder="http://...">
+		</div>
+	      </div>
+
+	      <div class="form-group">
+		<label for="inputHTTPValidateCert" class="control-label col-md-2">Validate Cert</label>
+		<div class="col-md-6">
+		  <div class="checkbox">
+		    <input type="checkbox" checked>
+		  </div>
+		</div>
+	      </div>
+	    </div>
+
+	    <div class="panel panel-default">
+	      <div class="panel-heading">Headers</div>
+	      <div class="panel-body">
+		<style>@media (min-width: 992px) { .custom-label{text-align: right;}}</style>
+		{% for i in range(0,5) %}
+		<div class="row" style="margin-bottom:15px;">
+		  <div class="col-md-2 custom-label" style="margin-top: 0; margin-bottom: 0; padding-right: 0; padding-top: 7px;">
+		    <label class="control-label">Key</label>
+		  </div>
+		  <div class="col-md-3">
+		    <input id="inputHTTPHeaderKey{{ i }}" type="text" class="form-control">
+		  </div>
+
+		  <div class="col-md-1 custom-label" style="margin-top: 0; margin-bottom: 0; padding-right: 0; padding-top: 7px;">
+		    <label class="control-label">Data</label>
+		  </div>
+		  <div class="col-md-3">
+		    <input id="inputHTTPHeaderData{{ i }}" type="text" class="form-control">
+		  </div>
+		</div>
+		{% endfor %}
+	      </div>
+	    </div>
+
+	    <div class="form-horizontal">
+	      <div class="panel panel-default">
+		<div class="panel-heading">Basic Auth</div>
+		<div class="panel-body">
+		  <div class="form-group">
+		    <label for="inputHTTPBasicAuthLogin" class="control-label col-md-2">Login</label>
+		    <div class="col-md-6">
+		      <input id="inputHTTPBasicAuthLogin" type="text" class="form-control">
+		    </div>
+		  </div>
+		  <div class="form-group">
+		    <label for="inputHTTPBasicAuthLogin" class="control-label col-md-2">Password</label>
+		    <div class="col-md-6">
+		      <input id="inputHTTPBasicAuthLogin" type="password" class="form-control">
+		    </div>
+		  </div>
+		</div>
+	      </div>
+
+	      <div class="form-group">
+		<label for="inputHTTPData" class="control-label col-md-1">Data</label>
+		<div class="col-md-5">
+		  <textarea id="inputHTTPData" rows="4" class="form-control"></textarea>
+		</div>
+              </div>
+
+	    </div>
 	  </div>
 	</div>
       </div>
@@ -47,4 +140,9 @@
     </div>
   </div>
 </form>
+
+{% endblock %}
+
+{% block js %}
+<script src="{{ url_for('static', filename='js/serviceForm.js') }}"></script>
 {% endblock %}
