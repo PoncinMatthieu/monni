@@ -53,14 +53,14 @@ class Service():
 		return requests.request(self.data['method'], self.data['url'], **kwargs)
 
 	def CheckStatus(self):
-		self.status = 0
+		status = 0
 		resultMessage = ''
 		try:
 			if self.data['type'] == 'HTTP':
 				r = self.Request()
 				if r != None:
-					self.status = r.status_code
-					if self.status != 200:
+					status = r.status_code
+					if status != 200:
 						resultMessage = r.text
 			else:
 				print('Service: Unknown service type. Failed to check service status.')
@@ -69,6 +69,7 @@ class Service():
 			print(e)
 			resultMessage = str(e)
 
+		self.status = status
 		if self.status != 200:
 			obj = 'Service ' + self.data['name'] + ' is down'
 			message = 'Status check failed with status code: ' + str(self.status) + "\nmessage:\n" + resultMessage
