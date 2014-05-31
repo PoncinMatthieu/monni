@@ -49,8 +49,8 @@ def handleDefaultExceptions(error):
 	return response
 
 # Import whole application
-import main
+import views
 import api
-import serviceStatusChecker
+import threads
 
 print("Server initialized")

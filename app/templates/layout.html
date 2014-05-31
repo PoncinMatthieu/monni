@@ -19,17 +19,17 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand" href="{{ url_for('routeIndex') }}"><img src="{{ url_for('static', filename='img/monni-logo.png') }}" alt="Monni" /></a>
+          <a class="navbar-brand" href="{{ url_for('routeViewIndex') }}"><img src="{{ url_for('static', filename='img/monni-logo.png') }}" alt="Monni" /></a>
         </div>
         <div class="collapse navbar-collapse">
           <ul class="nav navbar-nav">
-            <li class="active"><a href="{{ url_for('routeIndex') }}">Home</a></li>
-	    <li><a href="{{ url_for('routeIndex') }}">Settings</a></li>
+            <li class="active"><a href="{{ url_for('routeViewIndex') }}">Home</a></li>
+	    <li><a href="{{ url_for('routeViewIndex') }}">Settings</a></li>
 	    <li>
 	      {% if not session.logged_in %}
-	      <a href="{{ url_for('routeLogin') }}">Log in</a>
+	      <a href="{{ url_for('routeViewLogin') }}">Log in</a>
 	      {% else %}
-	      <a href="{{ url_for('routeLogout') }}">Log out</a>
+	      <a href="{{ url_for('routeViewLogout') }}">Log out</a>
 	      {% endif %}
 	    </li>
 	  </ul>

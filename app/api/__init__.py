@@ -41,17 +41,17 @@ def requiresAuth(f):
 	return decorated
 
 @app.route('/api')
-def apiIndex():
+def routeApiIndex():
 	return 'Monni api is up and running.'
 
 @app.route('/api/auth')
 @requiresAuth
-def apiAuth():
+def routeApiAuth():
 	return 'Authentication successful'
 
 @app.route('/api/event/<type>', methods=['POST'])
 @requiresAuth
-def apiNewEvent(type):
+def routeApiNewEvent(type):
 	# get json with json_util from bson module so that types matches with mongo types.
 	e = Event(session['sid'], type, json_util.loads(request.data))
 	e.Insert()

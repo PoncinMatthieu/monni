@@ -4,38 +4,38 @@
 {% block body %}
 <h1 class="page-header">Create new service</h1>
 
-<a href="{{ url_for('routeIndex') }}"><span class="glyphicon glyphicon-chevron-left" />Back</a>
-<form class="" method="post" action="{{ url_for('routeNewService') }}" role="form" style="margin-bottom: 100px;">
+<a href="{{ url_for('routeViewIndex') }}"><span class="glyphicon glyphicon-chevron-left" />Back</a>
+<form class="" method="post" action="{{ url_for('routeViewServicesPostNew') }}" role="form" style="margin-bottom: 100px;">
   <div class="panel panel-default">
     <div class="panel-body">
 
       <div class="form-horizontal">
-      <div class="form-group">
-	<label for="inputName" class="control-label col-md-1">Name</label>
-	<div class="col-md-6">
-	  <input id="inputName" type="text" class="form-control" placeholder="name">
+	<div class="form-group">
+	  <label for="inputName" class="control-label col-md-1">Name</label>
+	  <div class="col-md-6">
+	    <input id="inputName" type="text" class="form-control" placeholder="name">
+	  </div>
 	</div>
-      </div>
       </div>
 
       <div class="form-horizontal">
-      <div class="panel panel-default">
-	<div class="panel-heading">Events API</div>
-	<div class="panel-body">
-	  <div class="form-group">
-	    <label for="inputAPIID" class="control-label col-md-2">Id</label>
-	    <div class="col-md-6">
-	      <input id="inputAPIID" type="text" class="form-control" placeholder="short name">
+	<div class="panel panel-default">
+	  <div class="panel-heading">Events API</div>
+	  <div class="panel-body">
+	    <div class="form-group">
+	      <label for="inputAPIID" class="control-label col-md-2">Id</label>
+	      <div class="col-md-6">
+		<input id="inputAPIID" type="text" class="form-control" placeholder="short name">
+	      </div>
 	    </div>
-	  </div>
-	  <div class="form-group">
-	    <label for="inputAPIKey" class="control-label col-md-2">API key</label>
-	    <div class="col-md-6">
-	      <input id="inputAPIKey" type="password" class="form-control" placeholder="password">
+	    <div class="form-group">
+	      <label for="inputAPIKey" class="control-label col-md-2">API key</label>
+	      <div class="col-md-6">
+		<input id="inputAPIKey" type="password" class="form-control" placeholder="password">
+	      </div>
 	    </div>
 	  </div>
 	</div>
-      </div>
       </div>
 
       <div class="panel panel-default">
@@ -144,5 +144,5 @@
 {% endblock %}
 
 {% block js %}
-<script src="{{ url_for('static', filename='js/serviceForm.js') }}"></script>
+<script src="{{ url_for('static', filename='js/form/service.js') }}"></script>
 {% endblock %}

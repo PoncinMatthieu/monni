@@ -4,7 +4,7 @@
 
 <h1 class="page-header">Login</h1>
 {% if error %}<p class="alert alert-danger"><strong>Error:</strong> {{ error }}{% endif %}
-<form class="col-md-3" method="post" action="{{ url_for('routeLogin') }}" role="form">
+<form class="col-md-3" method="post" action="{{ url_for('routeViewLogin') }}" role="form">
   <div class="form-group ">
     <label class="control-label">Username:</label>
     <input type="text" class="form-control" name="username">
