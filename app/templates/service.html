@@ -17,6 +17,16 @@
 
 
 <div>
+  <form class="form-inline" method="post" action="{{ url_for('routeViewServices', sid=service.id) }}" role="form">
+    <div class="form-group">
+      <label class="sr-only" for="findField">Projection</label>
+      <input name="find" type="text" class="form-control" id="findField" placeholder="{'type': 'test'}">
+    </div>
+    <button type="submit" class="btn btn-default">Filter</button>
+  </form>
+</div>
+
+<div>
   <div class="table-responsive">
     <table class="table table-striped">
       <thead>

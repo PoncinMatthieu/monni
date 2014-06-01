@@ -22,9 +22,12 @@ class Event():
 		return events
 
 	@staticmethod
-	def FetchFromService(sid, projection = None):
+	def FetchFromService(sid, findFilter = None, projection = None):
 		events = []
-		for e in db.events.find({'sid': sid}, projection).sort('time',-1):
+		if findFilter == None:
+			findFilter = {}
+		findFilter['sid'] = sid
+		for e in db.events.find(findFilter, projection).sort('time',-1):
 			events.append(Event.Clone(e))
 		return events
 

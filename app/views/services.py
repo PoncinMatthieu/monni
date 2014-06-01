@@ -1,5 +1,5 @@
 
-import json
+import json, ast
 from bson import json_util
 from flask import render_template, redirect, request, session, flash, url_for
 
@@ -67,7 +67,7 @@ def routeViewServicesDelete(sid):
 		flash('Service deleted sucessfully.')
 	return redirect(url_for('routeViewIndex'))
 
-@app.route('/service/<sid>')
+@app.route('/service/<sid>', methods=["GET", "POST"])
 @requiresLogin
 def routeViewServices(sid):
 	s = Service.Fetch(sid)
@@ -75,7 +75,11 @@ def routeViewServices(sid):
 		flash('The requested service does not exist!')
 		return redirect(url_for('routeViewIndex'))
 
-	events = Event.FetchFromService(s.id)
+	find = None
+	if request.method == "POST" and 'find' in request.form and len(request.form['find']) > 0:
+		find = ast.literal_eval(request.form['find'])
+
+	events = Event.FetchFromService(s.id, findFilter=find)
 	return render_template('service.html', service=s, events=events)
 
 @app.route('/event/<eid>')
