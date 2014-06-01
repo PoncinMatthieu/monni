@@ -1,11 +1,11 @@
 
-{% extends "layout.html" %}
+{% extends layout %}
 
 {% block body %}
-<h1 class="page-header">Create new service</h1>
+<h1 class="page-header">{% if service != None %}Update{% else %}Create new{% endif %} service</h1>
 
 <a href="{{ url_for('routeViewIndex') }}"><span class="glyphicon glyphicon-chevron-left" />Back</a>
-<form class="" method="post" action="{{ url_for('routeViewServicesPostNew') }}" role="form" style="margin-bottom: 100px;">
+<form class="" method="post" action="{% if service != None %}{{ url_for('routeViewServicesPostForm', sid=service.id) }}{% else %}{{ url_for('routeViewServicesPostForm') }}{% endif %}" role="form" style="margin-bottom: 100px;">
   <div class="panel panel-default">
     <div class="panel-body">
 
@@ -13,7 +13,7 @@
 	<div class="form-group">
 	  <label for="inputName" class="control-label col-md-1">Name</label>
 	  <div class="col-md-6">
-	    <input id="inputName" type="text" class="form-control" placeholder="name">
+	    <input id="inputName" name="name" type="text" class="form-control" placeholder="name" value="{% if service != None %}{{ service.data.name }}{% endif %}">
 	  </div>
 	</div>
       </div>
@@ -25,13 +25,13 @@
 	    <div class="form-group">
 	      <label for="inputAPIID" class="control-label col-md-2">Id</label>
 	      <div class="col-md-6">
-		<input id="inputAPIID" type="text" class="form-control" placeholder="short name">
+		<input id="inputAPIID" name="eventApiId" type="text" class="form-control" placeholder="short name" value="{% if service != None and 'eventApi' in service.data %}{{ service.data.eventApi.id }}{% endif %}">
 	      </div>
 	    </div>
 	    <div class="form-group">
 	      <label for="inputAPIKey" class="control-label col-md-2">API key</label>
 	      <div class="col-md-6">
-		<input id="inputAPIKey" type="password" class="form-control" placeholder="password">
+		<input id="inputAPIKey" name="eventApiKey" type="password" class="form-control" placeholder="password" value="{% if service != None and 'eventApi' in service.data %}{{ service.data.eventApi.key }}{% endif %}">
 	      </div>
 	    </div>
 	  </div>
@@ -43,32 +43,32 @@
 	<div class="panel-body">
 	  <div class="btn-group checks-type">
 	    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-	      None
+	      {% if service != None and "status" in service.data %}{{ service.data.status.type }}{% else %}None{% endif %}
 	      <span class="caret"></span>
 	    </button>
 	    <ul class="dropdown-menu">
-	      <li class="active button-none" data-target="#collapseNone"><a class="btn">None</a></li>
-	      <li class="button-http" data-target="#collapseHTTP"><a class="btn">HTTP</a></li>
+	      <li class="{% if service == None or not service.IsStatusCheckable() %}active{% endif %} button-none" data-target="#collapseNone"><a class="btn">None</a></li>
+	      <li class="{% if service != None and service.StatusCheckIs('HTTP') %}active{% endif %} button-http" data-target="#collapseHTTP"><a class="btn">HTTP</a></li>
 	      <li class="disabled"><a class="btn">WebSocket</a></li>
 	      <li class="disabled"><a class="btn">Simple TCP</a></li>
 	      <li class="disabled"><a class="btn">Simple UDP</a></li>
 	    </ul>
 	  </div>
 
-	  <div id="collapseNone" class="form-status-check collapse in"></div>
-	  <div id="collapseHTTP" class="form-status-check collapse collapse">
+	  <div id="collapseNone" class="form-status-check collapse {% if service == None or not service.IsStatusCheckable() %}in{% endif %}"></div>
+	  <div id="collapseHTTP" class="form-status-check collapse {% if service != None and service.StatusCheckIs('HTTP') %}in{% endif %}">
 
 	    <div class="form-horizontal">
 	      <div class="form-group">
 		<label for="inputHTTPMethod" class="control-label col-md-2">Method</label>
 		<div class="col-md-6">
-		  <input id="inputHTTPMethod" type="text" class="form-control" value="GET">
+		  <input id="inputHTTPMethod" name="statusCheckHttpMethod" type="text" class="form-control" value="{% if service != None and service.IsStatusCheckable() %}{{ service.data.status.method }}{% else %}GET{% endif %}">
 		</div>
 	      </div>
 	      <div class="form-group">
 		<label for="inputHTTPUrl" class="control-label col-md-2">Url</label>
 		<div class="col-md-6">
-		  <input id="inputHTTPUrl" type="url" class="form-control" placeholder="http://...">
+		  <input id="inputHTTPUrl" name="statusCheckHttpUrl" type="url" class="form-control" placeholder="http://..." value="{% if service != None and service.IsStatusCheckable() %}{{ service.data.status.url }}{% endif %}">
 		</div>
 	      </div>
 
@@ -76,7 +76,7 @@
 		<label for="inputHTTPValidateCert" class="control-label col-md-2">Validate Cert</label>
 		<div class="col-md-6">
 		  <div class="checkbox">
-		    <input type="checkbox" checked>
+		    <input type="checkbox" name="statusCheckHttpValidateCert" {% if service == None or not service.IsStatusCheckable() or (service.IsStatusCheckable() and 'verify' not in service.data.status) or (service.IsStatusCheckable() and 'verify' in service.data.status and service.data.status == True)  %}checked{% endif %}>
 		  </div>
 		</div>
 	      </div>
@@ -92,14 +92,14 @@
 		    <label class="control-label">Key</label>
 		  </div>
 		  <div class="col-md-3">
-		    <input id="inputHTTPHeaderKey{{ i }}" type="text" class="form-control">
+		    <input id="inputHTTPHeaderKey{{ i }}" name="statusCheckHttpHeaderKey{{ i }}" type="text" class="form-control" value="{% if service != None and service.IsStatusCheckable() and 'headers' in service.data.status %}{{ service.data.status.headers.keys()[i] }}{% endif %}">
 		  </div>
 
 		  <div class="col-md-1 custom-label" style="margin-top: 0; margin-bottom: 0; padding-right: 0; padding-top: 7px;">
 		    <label class="control-label">Data</label>
 		  </div>
 		  <div class="col-md-3">
-		    <input id="inputHTTPHeaderData{{ i }}" type="text" class="form-control">
+		    <input id="inputHTTPHeaderData{{ i }}" name="statusCheckHttpHeaderData{{ i }}" type="text" class="form-control" value="{% if service != None and service.IsStatusCheckable() and 'headers' in service.data.status %}{{ service.data.status.headers.values()[i] }}{% endif %}">
 		  </div>
 		</div>
 		{% endfor %}
@@ -113,13 +113,13 @@
 		  <div class="form-group">
 		    <label for="inputHTTPBasicAuthLogin" class="control-label col-md-2">Login</label>
 		    <div class="col-md-6">
-		      <input id="inputHTTPBasicAuthLogin" type="text" class="form-control">
+		      <input id="inputHTTPBasicAuthLogin" name="statusCheckHttpBasicAuthLogin" type="text" class="form-control" value="{% if service != None and service.IsStatusCheckable() and "auth" in service.data.status %}{{ service.data.status.auth.login }}{% endif %}">
 		    </div>
 		  </div>
 		  <div class="form-group">
 		    <label for="inputHTTPBasicAuthLogin" class="control-label col-md-2">Password</label>
 		    <div class="col-md-6">
-		      <input id="inputHTTPBasicAuthLogin" type="password" class="form-control">
+		      <input id="inputHTTPBasicAuthLogin" name="statusCheckHttpBasicAuthPass" type="password" class="form-control" value="{% if service != None and service.IsStatusCheckable() and "auth" in service.data.status %}{{ service.data.status.auth.pass }}{% endif %}">
 		    </div>
 		  </div>
 		</div>
@@ -128,7 +128,7 @@
 	      <div class="form-group">
 		<label for="inputHTTPData" class="control-label col-md-1">Data</label>
 		<div class="col-md-5">
-		  <textarea id="inputHTTPData" rows="4" class="form-control"></textarea>
+		  <textarea id="inputHTTPData" name="statusCheckHttpData" rows="4" class="form-control">{% if service != None and service.IsStatusCheckable() and "data" in service.data.status %}{{ service.data.status.data }}{% endif %}</textarea>
 		</div>
               </div>
 

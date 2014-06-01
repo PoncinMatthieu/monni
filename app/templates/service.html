@@ -2,11 +2,44 @@
 {% extends "layout.html" %}
 
 {% block body %}
-<ul class=events>
-  {% for event in events %}
-  <li><a href="/event/{{ event.id }}">{{ event.datas.time|safe }} : {{ event.sid|safe }} : {{ event.type|safe }}</a> <a href="/event/del/{{ event.id }}">delete</a></li>
-  {% else %}
-  <li><em>Unbelievable. No event here so far</em></li>
-  {% endfor %}
-</ul>
+<h1 class="page-header">
+  {{ service.data.name }}
+  <div class="btn-group">
+    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+      <span class="glyphicon glyphicon-cog"></span>
+    </button>
+    <ul class="dropdown-menu">
+      <li><a href="{{ url_for('routeViewServicesGetForm', sid=service.id) }}">Edit</a></li>
+      <li><a href="{{ url_for('routeViewServicesDelete', sid=service.id) }}">Delete</a></li>
+    </ul>
+  </div>
+</h1>
+
+
+<div>
+  <div class="table-responsive">
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th class="col-md-3">Time</th>
+          <th class="col-md-8">Type</th>
+          <th class="col-md-1">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+	{% for event in events %}
+        <tr>
+          <td class="col-md-3">{{ event.datas.time|safe }}</td>
+          <td class="col-md-8"><a href="{{ url_for('routeViewServicesEvent', eid=event.id) }}">{{ event.type|safe }}</a></td>
+	  <td class="col-md-1"><a href="{{ url_for('routeViewServicesDeleteEvent', eid=event.id) }}">del</a></td>
+        </tr>
+	{% else %}
+	<tr>
+	  <td class="col-md-12"><em>Unbelievable. No event here so far</em></td>
+	</tr>
+	{% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
 {% endblock %}

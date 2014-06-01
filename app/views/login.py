@@ -23,7 +23,7 @@ def routeViewLogin():
 			session['logged_in'] = True
 			flash('You are logged in')
 			return redirect(url_for('routeViewIndex'))
-	return render_template('login.html', error=error)
+	return render_template('form/login.html', layout="layout.html", error=error)
 
 @app.route('/logout', methods=['GET', 'POST'])
 def routeViewLogout():

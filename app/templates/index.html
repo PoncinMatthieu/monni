@@ -9,39 +9,28 @@
       <span class="glyphicon glyphicon-cog"></span>
     </button>
     <ul class="dropdown-menu">
-      <li><a href="{{ url_for('routeViewServicesGetNew') }}">Create new service</a></li>
+      <li><a href="{{ url_for('routeViewServicesGetForm') }}">Create new service</a></li>
     </ul>
   </div>
 </h1>
-<ul class="service-status">
+<div class="service-status">
   <div class="table-responsive">
     <table class="table table-striped">
       <thead>
         <tr>
-          <th>Status</th>
-          <th>Name</th>
-          <th>Events</th>
+          <th class="col-md-1">Status</th>
+          <th class="col-md-11">Name</th>
         </tr>
       </thead>
       <tbody>
 	{% for service in services %}
         <tr>
-          <td><img src="{% if service.status != 200 %}{{ url_for('static', filename='img/status-red.png') }}{% else %}{{ url_for('static', filename='img/status-green.png') }}{% endif %}" alt="{{ service.status }}" /></td>
-          <td>{{ service.data.name }}</td>
-	  <td><a href="/service/{{ service.data.id }}">{{ service.data.id }}</a></td>
+          <td class="col-md-1">{% if service.IsStatusCheckable()  %}<img src="{% if service.status != 200 %}{{ url_for('static', filename='img/status-red.png') }}{% else %}{{ url_for('static', filename='img/status-green.png') }}{% endif %}" alt="{{ service.status }}" />{% endif %}</td>
+          <td class="col-md-11"><a href="{{ url_for('routeViewServices', sid=service.id) }}">{{ service.data.name }}</a></td>
         </tr>
 	{% endfor %}
       </tbody>
     </table>
   </div>
-</ul>
-
-<h1 class="page-header">Service Events</h1>
-<ul class=events>
-  {% for eventService in eventServices %}
-  <li><a href="/service/{{ eventService }}">{{ eventService }}</a>
-  {% else %}
-  <li><em>Unbelievable. No services here so far</em></li>
-  {% endfor %}
-</ul>
+</div>
 {% endblock %}

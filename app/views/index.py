@@ -7,6 +7,5 @@ from app.threads import services
 
 @app.route('/')
 def routeViewIndex():
-	eventServices = app.config['SERVICES']
-	return render_template('index.html', services=services, eventServices=eventServices)
+	return render_template('index.html', services=services)
 

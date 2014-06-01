@@ -1,7 +1,6 @@
-{% extends "layout.html" %}
+{% extends layout %}
 
 {% block body %}
-
 <h1 class="page-header">Login</h1>
 {% if error %}<p class="alert alert-danger"><strong>Error:</strong> {{ error }}{% endif %}
 <form class="col-md-3" method="post" action="{{ url_for('routeViewLogin') }}" role="form">

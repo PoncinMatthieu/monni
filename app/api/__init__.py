@@ -4,7 +4,7 @@ from flask import session, url_for, request, Response
 from bson import json_util
 
 from app import app
-from model import Event
+from app.model import Event
 
 # Authentication
 def authenticate():

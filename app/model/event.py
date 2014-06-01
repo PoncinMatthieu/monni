@@ -11,32 +11,32 @@ class Event():
 		return json.dumps(self.data,default=json_util.default)
 
 	@staticmethod
-	def FetchEventTypes():
+	def FetchTypes():
 		return db.events.aggregate([{'$group': {_id: "$type"}}])
 
 	@staticmethod
-	def FetchAllEvents(projection = None):
+	def FetchAll(projection = None):
 		events = []
 		for e in db.events.find({}, projection).sort('time',-1):
 			events.append(Event.Clone(e))
 		return events
 
 	@staticmethod
-	def FetchEventsFrom(sid, projection = None):
+	def FetchFromService(sid, projection = None):
 		events = []
 		for e in db.events.find({'sid': sid}, projection).sort('time',-1):
 			events.append(Event.Clone(e))
 		return events
 
 	@staticmethod
-	def FetchEventsOfType(type, projection = None):
+	def FetchOfType(type, projection = None):
 		events = []
 		for e in db.events.find({'type': type}, projection).sort('time',-1):
 			events.append(Event.Clone(e))
 		return events
 
 	@staticmethod
-	def FetchEventWithId(eid, projection = None):
+	def Fetch(eid, projection = None):
 		return Event.Clone(db.events.find_one({'_id': ObjectId(eid)}, projection))
 
 	@staticmethod
