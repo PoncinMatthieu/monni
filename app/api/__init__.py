@@ -5,6 +5,7 @@ from bson import json_util
 
 from app import app
 from app.model import Event
+from app.model import Service
 
 # Authentication
 def authenticate():
@@ -14,9 +15,9 @@ def authenticate():
 		{'WWW-Authenticate': 'Basic realm="Login Required"'})
 
 def checkAuth(serviceName, serviceKey):
-	services = app.config['SERVICES']
-	if serviceName in services and services[serviceName] == serviceKey:
-		session['sid'] = serviceName
+	s = Service.FetchByEventAPI(serviceName, serviceKey)
+	if s != None:
+		session['sid'] = s.id
 		return 1
 	return 0
 
@@ -26,8 +27,6 @@ def performRequestAuth():
 	if auth:
 		return checkAuth(auth.username, auth.password)
 	elif 'sid' not in session:
-		return 0
-	elif session['sid'] not in app.config['SERVICES']:
 		return 0
 	else:
 		return 1

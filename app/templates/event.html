@@ -2,7 +2,11 @@
 {% extends "layout.html" %}
 
 {% block body %}
-<h2>{{ event.sid|safe }} : {{ event.type|safe }}</h2>
+<h2>{{ event.type|safe }}</h2>
+
+<p>
+  <strong>Time:</strong> <span id="event-time"></span>
+</p>
 
 <pre id="event-data">
 </pre>
@@ -10,8 +14,18 @@
 
 {% block js %}
 <script type="text/javascript">
+  function replacer(key, value) {
+  if (key == "time") {
+  return undefined;
+  }
+  if (typeof value === "string") {
+  return value.replace(/(?:\n)/g, '<br/>');
+  }
+  return value;
+  }
+
   var json = {{ event.datas_dump|safe }};
-  console.log(JSON.stringify(json, undefined, 2));
-  $("#event-data").html(JSON.stringify(json, undefined, 2));
+  $("#event-time").html(new Date(json["time"]["$date"]));
+  $("#event-data").html(JSON.stringify(json, replacer, 2));
 </script>
 {% endblock %}

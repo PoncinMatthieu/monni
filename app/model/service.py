@@ -27,6 +27,10 @@ class Service():
 		return Service.Clone(db.services.find_one({'_id': ObjectId(sid)}, projection))
 
 	@staticmethod
+	def FetchByEventAPI(id, key, projection = None):
+		return Service.Clone(db.services.find_one({'eventApi': {'id': id, 'key': key}}, projection))
+
+	@staticmethod
 	def Clone(data):
 		if data == None:
 			return None

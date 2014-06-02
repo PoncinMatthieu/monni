@@ -29,8 +29,8 @@ def routeViewServicesPostForm(sid):
 
 	if 'statusCheckHttpUrl' in request.form and len(request.form['statusCheckHttpUrl']) > 0:
 		httpData = {'type': 'HTTP', 'url': request.form['statusCheckHttpUrl'], 'method': request.form['statusCheckHttpMethod']}
-		if 'statusCheckHttpValidateCert' in request.form and request.form['statusCheckHttpValidateCert'] == 'on':
-			httpData['verify'] = True
+		if 'statusCheckHttpValidateCert' not in request.form or request.form['statusCheckHttpValidateCert'] != 'on':
+			httpData['verify'] = False
 		if 'statusCheckHttpBasicAuthLogin' in request.form and 'statusCheckHttpBasicAuthPass' in request.form and len(request.form['statusCheckHttpBasicAuthLogin']) > 0 and len(request.form['statusCheckHttpBasicAuthPass']) > 0:
 			httpData['auth'] = {'login': request.form['statusCheckHttpBasicAuthLogin'], 'pass': request.form['statusCheckHttpBasicAuthPass']}
 		headersLeft = True
