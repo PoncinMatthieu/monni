@@ -1,0 +1,26 @@
+#
+# Example configuration file.
+# You must set the SECRET_KEY / USERNAME / PASSWORD / SMTP_* / ALERT_MAIL_* keys
+#
+
+# session
+# generate a key with ''
+SECRET_KEY = 
+
+# admin user conf
+USERNAME = 
+PASSWORD = 
+
+# DB configuration
+DB_NAME = 'monni'
+DB_HOST = 'localhost'
+DB_REPLICA_SET = ''
+
+# SMTP configuration
+SMTP_HOST = 
+SMTP_USER = 
+SMTP_PASS = 
+
+# Alert mails eg: 'alerts@monni.domain.com'
+ALERT_MAIL_FROM = 
+ALERT_MAIL_TO = 
