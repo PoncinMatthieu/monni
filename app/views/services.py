@@ -76,11 +76,30 @@ def routeViewServices(sid):
 		return redirect(url_for('routeViewIndex'))
 
 	find = None
-	if request.method == "POST" and 'find' in request.form and len(request.form['find']) > 0:
-		find = ast.literal_eval(request.form['find'])
+	group = None
+	if request.method == "POST":
+		if 'find' in request.form and len(request.form['find']) > 0:
+			find = ast.literal_eval(request.form['find'])
+		if 'group' in request.form and len(request.form['group']) > 0:
+			group = request.form['group']
 
 	events = Event.FetchFromService(s.id, findFilter=find)
-	return render_template('service.html', service=s, events=events)
+
+	if group != None:
+		newEvents = []
+		for e in events:
+			found = False
+			for ne in newEvents:
+				if group in e.datas and group in ne.datas and e.datas[group] == ne.datas[group]:
+					found = True
+					ne.datas['time'] += 1
+					break
+			if not found:
+				e.datas['time'] = 1
+				newEvents.append(e)
+		events = newEvents
+
+	return render_template('service.html', service=s, events=events, form=(request.form if request.method == "POST" else None ))
 
 @app.route('/event/<eid>')
 @requiresLogin

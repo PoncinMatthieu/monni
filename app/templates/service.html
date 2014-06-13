@@ -19,8 +19,12 @@
 <div>
   <form class="form-inline" method="post" action="{{ url_for('routeViewServices', sid=service.id) }}" role="form">
     <div class="form-group">
-      <label class="sr-only" for="findField">Projection</label>
-      <input name="find" type="text" class="form-control" id="findField" placeholder="{'type': 'test'}">
+      <label class="sr-only" for="findField">Find</label>
+      <input name="find" type="text" class="form-control" id="findField" placeholder="{'type': 'test'}" value="{% if form != None and 'find' in form %}{{ form['find'] }}{% endif %}">
+    </div>
+    <div class="form-group">
+      <label class="sr-only" for="findField">Group by</label>
+      <input name="group" type="text" class="form-control" id="groupField" placeholder="group-by-field" value="{% if form != None and 'group' in form %}{{ form['group'] }}{% endif %}">
     </div>
     <button type="submit" class="btn btn-default">Filter</button>
   </form>
