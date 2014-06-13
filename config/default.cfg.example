@@ -4,7 +4,9 @@
 #
 
 # session
-# generate a key with ''
+# generate a key with the following and copy/paste the result:
+# > import os
+# > os.urandom(24)
 SECRET_KEY = 
 
 # admin user conf
