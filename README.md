@@ -27,6 +27,7 @@ We are planing to add the following features in the near future:
 Features
 --------
 Monni can be used in 3 different ways:
+
 OUTBOUND:
 - Monitor HTTP services status.
 - Alert mails are sent when a service is down.
