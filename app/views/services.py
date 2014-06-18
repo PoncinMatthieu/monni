@@ -101,10 +101,14 @@ def routeViewServices(sid):
 
 	# fetch all resolvedEvents and mark matching events as resolved
 	canBeResolved = False
-	for re in ResolvedEvent.FetchFromService(sid):
+	resolvedEvents = ResolvedEvent.FetchFromService(sid)
+	if len(resolvedEvents) > 0:
 		canBeResolved = True
 		for e in events:
 			e.resolved = False
+
+	for re in resolvedEvents:
+		for e in events:
 			if re.type == e.type:
 				allMatch = True
 				for key in re.datas:
