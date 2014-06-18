@@ -20,7 +20,7 @@ class ResolvedEvent():
 	def FetchFromService(sid, findFilter = {}, projection = None):
 		if findFilter == None:
 			findFilter = {}
-		findFilter['sid'] = sid
+		findFilter['sid'] = ObjectId(sid)
 		return ResolvedEvent.FetchAll(findFilter, projection)
 
 	@staticmethod
