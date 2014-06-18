@@ -10,6 +10,20 @@
 
 <pre id="event-data">
 </pre>
+
+<form class="" method="post" action="{{ url_for('routeViewServicesNewResolvedEvent', sid=event.sid, type=event.type) }}" role="form" style="margin-bottom: 100px;">
+  <h3>Add resolved event</h3>
+  <p>All events matching a resolved event data will be automatically marked as resolved.</p>
+  <div class="form-horizontal">
+    <div class="form-group">
+      <label for="inputData" class="control-label col-md-1">Matching data</label>
+      <div class="col-md-6">
+	<textarea id="inputData" name="data" rows="4" class="form-control">{{ event.datas_dump }}</textarea>
+      </div>
+    </div>
+    <button type="submit" class="btn btn-default">Create new resolved event</button>
+  </div>
+</form>
 {% endblock %}
 
 {% block js %}

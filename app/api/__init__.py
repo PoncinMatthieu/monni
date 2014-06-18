@@ -4,8 +4,7 @@ from flask import session, url_for, request, Response
 from bson import json_util
 
 from app import app
-from app.model import Event
-from app.model import Service
+from app.model import Event, ResolvedEvent, Service
 
 # Authentication
 def authenticate():
@@ -56,3 +55,11 @@ def routeApiNewEvent(type):
 	e.Insert()
 	return 'ok'
 
+@app.route('/api/archive/resolvedEvents/<reid>', methods=['GET', 'POST'])
+@requiresAuth
+def routeApiArchiveResolvedEvent(reid):
+	re = ResolvedEvent.Fetch(reid)
+	if re == None:
+		return 'This resolved event doesn\'t exist', 404
+	re.ArchiveEvents()
+	return 'ok'

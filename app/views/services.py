@@ -4,8 +4,7 @@ from bson import json_util
 from flask import render_template, redirect, request, session, flash, url_for
 
 from app import app
-from app.model import Event
-from app.model import Service
+from app.model import Event, ResolvedEvent, Service
 from login import requiresLogin
 from app.threads import serviceStatus
 
@@ -75,13 +74,14 @@ def routeViewServices(sid):
 		flash('The requested service does not exist!')
 		return redirect(url_for('routeViewIndex'))
 
+	# fetch all events
 	find = None
 	group = None
-	if request.method == "POST":
-		if 'find' in request.form and len(request.form['find']) > 0:
-			find = ast.literal_eval(request.form['find'])
-		if 'group' in request.form and len(request.form['group']) > 0:
-			group = request.form['group']
+
+	if 'find' in request.values and len(request.values['find']) > 0:
+		find = ast.literal_eval(request.values['find'])
+	if 'group' in request.values and len(request.values['group']) > 0:
+		group = request.values['group']
 
 	events = Event.FetchFromService(s.id, findFilter=find)
 
@@ -99,7 +99,22 @@ def routeViewServices(sid):
 				newEvents.append(e)
 		events = newEvents
 
-	return render_template('service.html', service=s, events=events, form=(request.form if request.method == "POST" else None ))
+	# fetch all resolvedEvents and mark matching events as resolved
+	canBeResolved = False
+	for re in ResolvedEvent.FetchFromService(sid):
+		canBeResolved = True
+		for e in events:
+			e.resolved = False
+			if re.type == e.type:
+				allMatch = True
+				for key in re.datas:
+					if key not in e.datas or e.datas[key] != re.datas[key]:
+						allMatch = False
+				if allMatch:
+					e.resolved = True
+					e.resolvedEventId = str(re.id)
+
+	return render_template('service.html', service=s, events=events, form=request.values, queryString=request.query_string, canBeResolved=canBeResolved)
 
 @app.route('/event/<eid>')
 @requiresLogin
@@ -110,9 +125,73 @@ def routeViewServicesEvent(eid):
 	e.datas_dump = json.dumps(e.datas, default=json_util.default)
 	return render_template('event.html', event=e)
 
-@app.route('/event/del/<eid>', methods=['GET'])
+@app.route('/delete/event/<eid>', methods=['GET', 'POST'])
 @requiresLogin
 def routeViewServicesDeleteEvent(eid):
-	e = Event()
-	e.Delete(eid)
+	events = GetGroupedEvents(eid, request)
+	if events == None:
+		flash('This event doesn\'t exist')
+
+	# delete all events
+	for e in events:
+		e.Delete()
+	if len(events) > 1:
+		flash(str(len(events)) + ' events deleted successfully')
+	else:
+		flash('Event deleted successfully')
+	return redirect(request.referrer)
+
+@app.route('/new/resolvedEvent/<sid>/<type>', methods=['POST'])
+@requiresLogin
+def routeViewServicesNewResolvedEvent(sid, type):
+	if 'data' in request.form and len(request.form['data']) > 0:
+		data = ast.literal_eval(request.form['data'])
+
+	re = ResolvedEvent(sid, type, data)
+	re.Insert()
 	return 'ok'
+
+@app.route('/archive/event/<eid>', methods=['GET', 'POST'])
+@requiresLogin
+def routeViewServicesArchiveEvent(eid):
+	events = GetGroupedEvents(eid, request)
+	if events == None:
+		flash('This event doesn\'t exist')
+
+	# archive all events
+	for e in events:
+		e.Archive()
+	if len(events) > 1:
+		flash(str(len(events)) + ' events archived successfully')
+	else:
+		flash('Event archived successfully')
+	return redirect(request.referrer)
+
+
+def GetGroupedEvents(eid, request):
+	find = None
+	group = None
+	if 'find' in request.values and len(request.values['find']) > 0:
+		find = ast.literal_eval(request.values['find'])
+	if 'group' in request.values and len(request.values['group']) > 0:
+		group = request.values['group']
+
+	# get first event to archive
+	tmpFind = None
+	if find != None:
+		tmpFind = dict(find)
+	e = Event.Fetch(eid, findFilter=tmpFind)
+	if e == None:
+		return None
+
+	# if group is not null, we go fetch all events with group filter
+	events = []
+	if group != None:
+		if find == None:
+			find = {}
+		find[group] = e.datas[group]
+		print('find filter: ' + str(find))
+		events = Event.FetchFromService(e.sid, findFilter=find)
+	else:
+		events.append(e)
+	return events

@@ -40,11 +40,15 @@ class Service():
 		if '_id' in data:
 			del data['_id']
 		self.data = data
-		self.id = id
+		self.id = str(id)
 		self.status = 0
 
 	def Insert(self):
-		return db.services.insert(self.data)
+		newId = db.services.insert(self.data)
+		if newId != None:
+			self.id = str(newId)
+			return self.id
+		return None
 
 	def Update(self, id = None):
 		if id == None:

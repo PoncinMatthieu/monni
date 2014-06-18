@@ -37,20 +37,16 @@ def afterRequest(response):
 	return response
 
 # Exceptions
-@app.errorhandler(Exception)
+#@app.errorhandler(Exception)
 def handleDefaultExceptions(error):
 	import traceback
 	trace = traceback.format_exc()
 	print('Exception occured while processing request: ' + request.path + '\n' + trace)
-
-	# return 500
-	response = jsonify({})
-	response.status_code = 500;
-	return response
+	return '{}', 500
 
 # Import whole application
-import views
 import api
 import threads
+import views
 
 print("Server initialized")

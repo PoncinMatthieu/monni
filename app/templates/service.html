@@ -17,7 +17,7 @@
 
 
 <div>
-  <form class="form-inline" method="post" action="{{ url_for('routeViewServices', sid=service.id) }}" role="form">
+  <form class="form-inline" method="get" action="{{ url_for('routeViewServices', sid=service.id) }}" role="form">
     <div class="form-group">
       <label class="sr-only" for="findField">Find</label>
       <input name="find" type="text" class="form-control" id="findField" placeholder="{'type': 'test'}" value="{% if form != None and 'find' in form %}{{ form['find'] }}{% endif %}">
@@ -35,17 +35,21 @@
     <table class="table table-striped">
       <thead>
         <tr>
+          <th class="col-md-1">Status</th>
           <th class="col-md-3">Time</th>
-          <th class="col-md-8">Type</th>
-          <th class="col-md-1">Action</th>
+          <th class="col-md-6">Type</th>
+          <th class="col-md-2">Action</th>
         </tr>
       </thead>
       <tbody>
 	{% for event in events %}
         <tr>
+          <td class="col-md-1">{% if canBeResolved == True %}<img src="{% if event.resolved == True %}{{ url_for('static', filename='img/status-green.png') }}{% else %}{{ url_for('static', filename='img/status-red.png') }}{% endif %}" alt="" />{% endif %}</td>
           <td class="col-md-3">{{ event.datas.time|safe }}</td>
-          <td class="col-md-8"><a href="{{ url_for('routeViewServicesEvent', eid=event.id) }}">{{ event.type|safe }}</a></td>
-	  <td class="col-md-1"><a href="{{ url_for('routeViewServicesDeleteEvent', eid=event.id) }}">del</a></td>
+          <td class="col-md-6"><a href="{{ url_for('routeViewServicesEvent', eid=event.id) }}">{{ event.type|safe }}</a></td>
+	  <td class="col-md-2">
+	    <a href="{{ url_for('routeViewServicesArchiveEvent', eid=event.id) + '?' + queryString }}">Archive</a>
+	    <a href="{{ url_for('routeViewServicesDeleteEvent', eid=event.id) + '?' + queryString }}">del</a></td>
         </tr>
 	{% else %}
 	<tr>

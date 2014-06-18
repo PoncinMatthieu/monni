@@ -15,31 +15,28 @@ class Event():
 		return db.events.aggregate([{'$group': {_id: "$type"}}])
 
 	@staticmethod
-	def FetchAll(projection = None):
+	def FetchAll(findFilter = {}, projection = None):
 		events = []
-		for e in db.events.find({}, projection).sort('time',-1):
-			events.append(Event.Clone(e))
-		return events
-
-	@staticmethod
-	def FetchFromService(sid, findFilter = None, projection = None):
-		events = []
-		if findFilter == None:
-			findFilter = {}
-		findFilter['sid'] = sid
 		for e in db.events.find(findFilter, projection).sort('time',-1):
 			events.append(Event.Clone(e))
 		return events
 
 	@staticmethod
-	def FetchOfType(type, projection = None):
-		events = []
-		for e in db.events.find({'type': type}, projection).sort('time',-1):
-			events.append(Event.Clone(e))
-		return events
+	def FetchFromService(sid, findFilter = {}, projection = None):
+		if findFilter == None:
+			findFilter = {}
+		findFilter['sid'] = ObjectId(sid)
+		return Event.FetchAll(findFilter, projection)
 
 	@staticmethod
-	def Fetch(eid, projection = None):
+	def FetchOfType(type, projection = None):
+		return Event.FetchAll({'type': type}, projection)
+
+	@staticmethod
+	def Fetch(eid, findFilter = {}, projection = None):
+		if findFilter == None:
+			findFilter = {}
+		findFilter['_id'] = ObjectId(eid)
 		return Event.Clone(db.events.find_one({'_id': ObjectId(eid)}, projection))
 
 	@staticmethod
@@ -58,23 +55,31 @@ class Event():
 		if '_id' in datas:
 			del datas['_id']
 
-		self.id = id
-		self.sid = sid
+		self.id = str(id)
+		self.sid = str(sid)
 		self.type = type
 		self.datas = datas
 
-	def Insert(self):
+	def Insert(self, collectionName = 'events'):
 		data = self.datas
-		data['sid'] = self.sid
+		data['sid'] = ObjectId(self.sid)
 		data['type'] = self.type
-		return db.events.insert(data)
+		newId = None
+		if collectionName == 'events':
+			newId = db.events.insert(data)
+		elif collectionName == 'archivedEvents':
+			newId = db.archivedEvents.insert(data)
+		if newId != None:
+			self.id = str(newId)
+			return self.id
+		return None
 
 	def Update(self, id = None):
 		if id == None:
 			id = self.id
 
 		data = self.datas
-		data['sid'] = self.sid
+		data['sid'] = ObjectId(self.sid)
 		data['type'] = self.type
 		db.events.update({'_id': ObjectId(id)}, {'$set': data})
 
@@ -82,3 +87,8 @@ class Event():
 		if id == None:
 			id = self.id
 		db.events.remove({'_id': ObjectId(id)})
+
+	def Archive(self):
+		id = self.id
+		self.Insert('archivedEvents')
+		self.Delete(id)
