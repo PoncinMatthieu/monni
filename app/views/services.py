@@ -132,25 +132,18 @@ def routeViewServicesEvent(eid):
 @app.route('/delete/event/<eid>', methods=['GET', 'POST'])
 @requiresLogin
 def routeViewServicesDeleteEvent(eid):
-	events = GetGroupedEvents(eid, request)
-	if events == None:
-		flash('This event doesn\'t exist')
+	return Delete(GetGroupedEvents(eid, request))
 
-	# delete all events
-	for e in events:
-		e.Delete()
-	if len(events) > 1:
-		flash(str(len(events)) + ' events deleted successfully')
-	else:
-		flash('Event deleted successfully')
-	return redirect(request.referrer)
+@app.route('/delete/events/<sid>', methods=['GET', 'POST'])
+@requiresLogin
+def routeViewServicesDeleteEvents(sid):
+	return Delete(GetGroupedEvents('', request. sid))
 
 @app.route('/new/resolvedEvent/<sid>/<type>', methods=['POST'])
 @requiresLogin
 def routeViewServicesNewResolvedEvent(sid, type):
 	if 'data' in request.form and len(request.form['data']) > 0:
 		data = ast.literal_eval(request.form['data'])
-
 	re = ResolvedEvent(sid, type, data)
 	re.Insert()
 	return 'ok'
@@ -158,21 +151,42 @@ def routeViewServicesNewResolvedEvent(sid, type):
 @app.route('/archive/event/<eid>', methods=['GET', 'POST'])
 @requiresLogin
 def routeViewServicesArchiveEvent(eid):
-	events = GetGroupedEvents(eid, request)
+	return Archive(GetGroupedEvents(eid, request))
+
+@app.route('/archive/events/<sid>', methods=['GET', 'POST'])
+@requiresLogin
+def routeViewServicesArchiveEvents(sid):
+	return Archive(GetGroupedEvents('', request, sid))
+
+
+# delete all events
+def Delete(events):
 	if events == None:
 		flash('This event doesn\'t exist')
-
-	# archive all events
-	for e in events:
-		e.Archive()
-	if len(events) > 1:
-		flash(str(len(events)) + ' events archived successfully')
 	else:
-		flash('Event archived successfully')
+		for e in events:
+			e.Delete()
+		if len(events) > 1:
+			flash(str(len(events)) + ' events deleted successfully')
+		else:
+			flash('Event deleted successfully')
+	return redirect(request.referrer)
+
+# archive all events
+def Archive(events):
+	if events == None:
+		flash('This event doesn\'t exist')
+	else:
+		for e in events:
+			e.Archive()
+		if len(events) > 1:
+			flash(str(len(events)) + ' events archived successfully')
+		else:
+			flash('Event archived successfully')
 	return redirect(request.referrer)
 
 
-def GetGroupedEvents(eid, request):
+def GetGroupedEvents(eid, request, sid = None):
 	find = None
 	group = None
 	if 'find' in request.values and len(request.values['find']) > 0:
@@ -184,7 +198,10 @@ def GetGroupedEvents(eid, request):
 	tmpFind = None
 	if find != None:
 		tmpFind = dict(find)
-	e = Event.Fetch(eid, findFilter=tmpFind)
+	if len(eid) > 0:
+		e = Event.Fetch(eid, findFilter=tmpFind)
+	else:
+		e = Event(sid) # create dummy event with sid
 	if e == None:
 		return None
 
@@ -193,9 +210,11 @@ def GetGroupedEvents(eid, request):
 	if group != None:
 		if find == None:
 			find = {}
-		find[group] = e.datas[group]
-		print('find filter: ' + str(find))
+		if group in e.datas:
+			find[group] = e.datas[group]
 		events = Event.FetchFromService(e.sid, findFilter=find)
-	else:
+	elif len(eid) > 0:
 		events.append(e)
+	else:
+		events = Event.FetchFromService(e.sid, findFilter=find)
 	return events

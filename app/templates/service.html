@@ -30,6 +30,10 @@
   </form>
 </div>
 
+{%
+  set nbEvents = events|length
+%}
+
 <div>
   <div class="table-responsive">
     <table class="table table-striped">
@@ -49,13 +53,25 @@
           <td class="col-md-6"><a href="{{ url_for('routeViewServicesEvent', eid=event.id) }}">{{ event.type|safe }}</a></td>
 	  <td class="col-md-2">
 	    <a href="{{ url_for('routeViewServicesArchiveEvent', eid=event.id) + '?' + queryString }}">Archive</a>
-	    <a href="{{ url_for('routeViewServicesDeleteEvent', eid=event.id) + '?' + queryString }}">del</a></td>
+	    <a href="{{ url_for('routeViewServicesDeleteEvent', eid=event.id) + '?' + queryString }}">Del</a>
+	  </td>
         </tr>
+	{% endfor %}
+	{% if nbEvents > 0: %}
+	<tr>
+	  <td class="col-md-1">Total:</td>
+	  <td class="col-md-3">{{ events|length }}</td>
+	  <td class="col-md-6" />
+	  <td class="col-md-2" >
+	    <a href="{{ url_for('routeViewServicesArchiveEvents', sid=service.id) + '?' + queryString }}">Archive All</a>
+	    <a href="{{ url_for('routeViewServicesDeleteEvents', sid=service.id) + '?' + queryString }}">Del All</a>
+	  </td>
+	</tr>
 	{% else %}
 	<tr>
 	  <td class="col-md-12"><em>Unbelievable. No event here so far</em></td>
 	</tr>
-	{% endfor %}
+	{% endif %}
       </tbody>
     </table>
   </div>
