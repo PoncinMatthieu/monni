@@ -23,9 +23,9 @@
         </div>
         <div class="collapse navbar-collapse">
           <ul class="nav navbar-nav">
-            <li class="active"><a href="{{ url_for('routeViewIndex') }}">Home</a></li>
-	    <li><a href="{{ url_for('routeViewIndex') }}">Settings</a></li>
-	    <li>
+            <li class="{% if header == 'home' %}active{% endif %}"><a href="{{ url_for('routeViewIndex') }}">Home</a></li>
+	    <li class="{% if header == 'settings' %}active{% endif %}"><a href="{{ url_for('routeViewIndex') }}">Settings</a></li>
+	    <li class="{% if header == 'login' %}active{% endif %}">
 	      {% if not session.logged_in %}
 	      <a href="{{ url_for('routeViewLogin') }}">Log in</a>
 	      {% else %}
@@ -40,8 +40,8 @@
     <div class="container-fluid">
        <div class="col-sm-3 col-md-2 sidebar">
           <ul class="nav nav-sidebar">
-            <li class="active"><a href="#">Services</a></li>
-            <li><a href="#">Events</a></li>
+            <li class="{% if sidebar == 'services' %}active{% endif %}"><a href="{{ url_for('routeViewIndex') }}">Services</a></li>
+            <li class="{% if sidebar == 'resolvedEvents' %}active{% endif %}"><a href="{{ url_for('routeViewResolvedEvents') }}">Resolved events</a></li>
           </ul>
        </div>
 

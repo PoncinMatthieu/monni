@@ -63,3 +63,7 @@ class ResolvedEvent():
 		for e in Event.FetchAll(data):
 			e.Archive()
 
+	def Delete(self, id = None):
+		if id == None:
+			id = self.id
+		db.resolvedEvents.remove({'_id': ObjectId(id)})

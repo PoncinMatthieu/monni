@@ -1,0 +1,39 @@
+
+{% extends "layout.html" %}
+
+{% block body %}
+<h1 class="page-header">Resolved events</h1>
+
+{%
+  set nbEvents = events|length
+%}
+
+<div>
+  <div class="table-responsive">
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th class="col-md-3">Type</th>
+          <th class="col-md-7">Datas</th>
+          <th class="col-md-2">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+	{% for event in events %}
+        <tr>
+          <td class="col-md-3">{{ event.type|safe }}</td>
+          <td class="col-md-7">{{ event.datas|safe }}</td>
+	  <td class="col-md-2">
+	    <a href="{{ url_for('routeViewResolvedEventDelete', eid=event.id) }}">Del</a>
+	  </td>
+        </tr>
+	{% else %}
+	<tr>
+	  <td class="col-md-12"><em>Unbelievable. No event here so far</em></td>
+	</tr>
+	{% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

@@ -18,6 +18,7 @@ dbConnection.connect(app.config['DB_HOST'], app.config['DB_REPLICA_SET'])
 print("Using db '" + app.config['DB_NAME'] + "'")
 db = dbConnection.getDatabase(app.config['DB_NAME'])
 
+
 # Requests
 #@app.before_request
 #def beforeRequest():

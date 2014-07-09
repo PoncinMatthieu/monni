@@ -7,5 +7,5 @@ from app.threads import services
 
 @app.route('/')
 def routeViewIndex():
-	return render_template('index.html', services=services)
+	return render_template('index.html', header="home", sidebar="services", services=services)
 
