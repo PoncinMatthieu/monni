@@ -41,7 +41,12 @@
         <tr>
           <th class="col-md-1">Status</th>
           <th class="col-md-3">Time</th>
+	  {% if form != None and 'group' in form %}
+          <th class="col-md-2">Type</th>
+	  <th class="col-md-4">{{ form['group'] }}</th>
+	  {% else %}
           <th class="col-md-6">Type</th>
+	  {% endif %}
           <th class="col-md-2">Action</th>
         </tr>
       </thead>
@@ -50,18 +55,33 @@
         <tr>
           <td class="col-md-1">{% if canBeResolved == True %}<img src="{% if event.resolved == True %}{{ url_for('static', filename='img/status-green.png') }}{% else %}{{ url_for('static', filename='img/status-red.png') }}{% endif %}" alt="" />{% endif %}</td>
           <td class="col-md-3">{{ event.datas.time|safe }}</td>
+
+	  {% if form != None and 'group' in form %}
+          <td class="col-md-2"><a href="{{ url_for('routeViewServicesEvent', eid=event.id) }}">{{ event.type|safe }}</a></td>
+	  <td class="col-md-4">{{ event.datas[form['group']] }}</td>
+	  {% else %}
           <td class="col-md-6"><a href="{{ url_for('routeViewServicesEvent', eid=event.id) }}">{{ event.type|safe }}</a></td>
+	  {% endif %}
+
 	  <td class="col-md-2">
 	    <a href="{{ url_for('routeViewServicesArchiveEvent', eid=event.id) + '?' + queryString }}">Archive</a>
 	    <a href="{{ url_for('routeViewServicesDeleteEvent', eid=event.id) + '?' + queryString }}">Del</a>
 	  </td>
         </tr>
 	{% endfor %}
+
 	{% if nbEvents > 0: %}
 	<tr>
 	  <td class="col-md-1">Total:</td>
 	  <td class="col-md-3">{{ events|length }}</td>
+
+	  {% if form != None and 'group' in form %}
+	  <td class="col-md-2" />
+	  <td class="col-md-4" />
+	  {% else %}
 	  <td class="col-md-6" />
+	  {% endif %}
+
 	  <td class="col-md-2" >
 	    <a href="{{ url_for('routeViewServicesArchiveEvents', sid=service.id) + '?' + queryString }}">Archive All</a>
 	    <a href="{{ url_for('routeViewServicesDeleteEvents', sid=service.id) + '?' + queryString }}">Del All</a>
