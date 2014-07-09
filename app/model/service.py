@@ -6,6 +6,7 @@ import json
 from bson import json_util, ObjectId
 
 from app import app, db
+from event import Event
 
 class Service():
 	EVENT_API_STRING = 'eventApi'
@@ -59,6 +60,9 @@ class Service():
 	def Delete(self, id = None):
 		if id == None:
 			id = self.id
+		# before we delete a service, delete all related entities
+		Event.DeleteAllFromService(id)
+		# delete the service
 		db.services.remove({'_id': ObjectId(id)})
 
 	# return true if the service is checkable

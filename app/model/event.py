@@ -40,6 +40,10 @@ class Event():
 		return Event.Clone(db.events.find_one({'_id': ObjectId(eid)}, projection))
 
 	@staticmethod
+	def DeleteAllFromService(sid):
+		db.events.remove({'sid': ObjectId(sid)})
+
+	@staticmethod
 	def Clone(data):
 		if data == None:
 			return None
