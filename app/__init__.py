@@ -38,11 +38,15 @@ def afterRequest(response):
 	return response
 
 # Exceptions
-#@app.errorhandler(Exception)
+@app.errorhandler(Exception)
 def handleDefaultExceptions(error):
 	import traceback
 	trace = traceback.format_exc()
 	print('Exception occured while processing request: ' + request.path + '\n' + trace)
+	if request.referrer != None:
+		flash(error.message)
+		return redirect(request.referrer)
+
 	return '{}', 500
 
 # Import whole application
