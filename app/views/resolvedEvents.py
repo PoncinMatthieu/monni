@@ -19,6 +19,6 @@ def routeViewResolvedEventDelete(eid):
 		flash('Resolved event doesn\'t exits.')
 	else:
 		e.Delete()
-		flash('Service deleted sucessfully.')
+		flash('Resolved event deleted sucessfully.')
 	return redirect(request.referrer)
 
