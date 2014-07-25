@@ -60,4 +60,4 @@ class Alert():
 		smtp = mails.InitSmtp(app.config['SMTP_HOST'], app.config['SMTP_USER'], app.config['SMTP_PASS'])
 		mails.SendMail(smtp, app.config['ALERT_MAIL_FROM'], app.config['ALERT_MAIL_TO'], self.datas['mail-closed-object'], self.datas['mail-closed-data'])
 
-		return db.currentAlerts.insert(newAlert.datas)
+		return db.closedAlerts.insert(newAlert.datas)
