@@ -7,6 +7,7 @@ from bson import json_util, ObjectId
 
 from app import app, db
 from event import Event
+from alert import Alert
 
 class Service():
 	EVENT_API_STRING = 'eventApi'
@@ -111,9 +112,21 @@ class Service():
 
 		self.status = status
 		if self.status != 200:
-			obj = 'Service ' + self.data['name'] + ' is down'
-			message = 'Status check failed with status code: ' + str(self.status) + "\nmessage:\n" + resultMessage
-			print(obj + ' ' + message)
-			smtp = mails.InitSmtp(app.config['SMTP_HOST'], app.config['SMTP_USER'], app.config['SMTP_PASS'])
-			mails.SendMail(smtp, app.config['ALERT_MAIL_FROM'], app.config['ALERT_MAIL_TO'], obj, message)
-
+			# check if an alert was already raised
+			# if not, create one
+			if not Alert.WasRaised({'type': 'service', 'eid': self.id}):
+				alert = Alert({
+						'type': 'service',
+						'eid': self.id,
+						'mail-raised-object': 'Alert raised: Service ' + self.data['name'] + ' is down',
+						'mail-raised-data': 'Status check failed with status code: ' + str(self.status) + "\nResult:\n" + resultMessage,
+						'mail-closed-object': 'Alert closed: Service ' + self.data['name'] + ' is up',
+						'mail-closed-data': 'The service is back online'
+						})
+				alert.Raise()
+		else:
+			# check if an alert was already raised
+			# if yes, close it
+			alert = Alert.FetchRaised({'type': 'service', 'eid': self.id})
+			if alert != None:
+				alert.Close()

@@ -14,7 +14,6 @@ serviceLock = threading.Lock()
 services = []
 
 def CheckServiceStatus(service):
-	print("Checking status for: " + service.data['name'])
 	service.CheckStatus()
 	InitThread(service, 60)
 
