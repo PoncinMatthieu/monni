@@ -137,7 +137,7 @@ def routeViewServicesDeleteEvent(eid):
 @app.route('/delete/events/<sid>', methods=['GET', 'POST'])
 @requiresLogin
 def routeViewServicesDeleteEvents(sid):
-	return Delete(GetGroupedEvents('', request. sid))
+	return Delete(GetGroupedEvents('', request, sid))
 
 @app.route('/new/resolvedEvent/<sid>/<type>', methods=['POST'])
 @requiresLogin
