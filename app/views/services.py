@@ -207,11 +207,10 @@ def GetGroupedEvents(eid, request, sid = None):
 
 	# if group is not null, we go fetch all events with group filter
 	events = []
-	if group != None:
+	if group != None and group in e.datas:
 		if find == None:
 			find = {}
-		if group in e.datas:
-			find[group] = e.datas[group]
+		find[group] = e.datas[group]
 		events = Event.FetchFromService(e.sid, findFilter=find)
 	elif len(eid) > 0:
 		events.append(e)
