@@ -94,21 +94,10 @@ class Service():
 		return requests.request(statusChecks['method'], statusChecks['url'], **kwargs)
 
 	def CheckStatus(self):
-		status = 0
-		resultMessage = ''
-		try:
-			if self.data[Service.STATUS_CHECK_STRING]['type'] == 'HTTP':
-				r = self.Request()
-				if r != None:
-					status = r.status_code
-					if status != 200:
-						resultMessage = r.text
-			else:
-				print('Service: Unknown service type. Failed to check service status.')
-		except Exception as e:
-			print('Service: Unknown error, failed to check service status.')
-			print(e)
-			resultMessage = str(e)
+		status, resultMessage = self.TryCheckStatus()
+		# if status no good, try again once more, to avoid a false positive
+		if status != 200:
+			status, resultMessage = self.TryCheckStatus()
 
 		self.status = status
 		if self.status != 200:
@@ -130,3 +119,21 @@ class Service():
 			alert = Alert.FetchRaised({'type': 'service', 'eid': self.id})
 			if alert != None:
 				alert.Close()
+
+	def TryCheckStatus(self):
+		status = 0
+		resultMessage = ''
+		try:
+			if self.data[Service.STATUS_CHECK_STRING]['type'] == 'HTTP':
+				r = self.Request()
+				if r != None:
+					status = r.status_code
+					if status != 200:
+						resultMessage = r.text
+			else:
+				print('Service: Unknown service type. Failed to check service status.')
+		except Exception as e:
+			print('Service: Unknown error, failed to check service status.')
+			print(e)
+			resultMessage = str(e)
+		return status, resultMessage

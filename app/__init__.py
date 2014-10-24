@@ -26,11 +26,8 @@ db = dbConnection.getDatabase(app.config['DB_NAME'])
 
 @app.after_request
 def afterRequest(response):
-	# TODO: Crossdomain access headers should be added for dev but not for production.
-	# Remove comments below to enable crossdomain access.
-
 	response.headers.add('Access-Control-Allow-Origin', request.headers.get('Origin'))
-	response.headers.add('Access-Control-Allow-Methods', 'GET, POST')
+	response.headers.add('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
 	response.headers.add('Access-Control-Allow-Headers', 'X-Requested-With, Origin, Accept, Content-Type, Authorization, Compression, Remember')
 	response.headers.add('Access-Control-Allow-Credentials',  'true')
 	response.headers.add('Cache-Control', 'no-cache')
