@@ -78,6 +78,7 @@ def routeApiNewProfilerEvent(type):
 			if d == e.datas['event']:
 				e.Update(newEvent)
 				found = True
+				break
 		if not found:
 			events.append(newEvent)
 			newEvent.Insert()

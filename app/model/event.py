@@ -8,25 +8,30 @@ from app import db
 class Event():
 	# display the data
 	def __repr__(self):
-		return json.dumps(self.data,default=json_util.default)
+		return json.dumps(self.datas,default=json_util.default)
 
 	@staticmethod
 	def FetchTypes():
 		return db.events.aggregate([{'$group': {_id: "$type"}}])
 
 	@staticmethod
-	def FetchAll(findFilter = {}, projection = None):
+	def FetchAll(findFilter = {}, projection = None, sortBy = None, distinctKey = None):
 		events = []
-		for e in db.events.find(findFilter, projection).sort('time',-1):
+		c = db.events.find(findFilter, projection)
+		if sortBy:
+			c = c.sort(sortBy,-1)
+		if distinctKey:
+			return c.distinct(distinctKey)
+		for e in c:
 			events.append(Event.Clone(e))
 		return events
 
 	@staticmethod
-	def FetchFromService(sid, findFilter = {}, projection = None):
+	def FetchFromService(sid, findFilter = {}, projection = None, sortBy = None, distinctKey = None):
 		if findFilter == None:
 			findFilter = {}
 		findFilter['sid'] = ObjectId(sid)
-		return Event.FetchAll(findFilter, projection)
+		return Event.FetchAll(findFilter, projection, sortBy, distinctKey)
 
 	@staticmethod
 	def FetchOfType(type, projection = None):

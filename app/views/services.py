@@ -4,7 +4,7 @@ from bson import json_util
 from flask import render_template, redirect, request, session, flash, url_for
 
 from app import app
-from app.model import Event, ResolvedEvent, Service
+from app.model import Event, ProfilerEvent, ResolvedEvent, Service
 from login import requiresLogin
 from app.threads import serviceStatus
 
@@ -74,16 +74,33 @@ def routeViewServices(sid):
 		flash('The requested service does not exist!')
 		return redirect(url_for('routeViewIndex'))
 
+	# fetch all event type
+	events = Event.FetchFromService(s.id, distinctKey='type')
+	profiledEvents = ProfilerEvent.FetchFromService(s.id, distinctKey='type')
+	return render_template('service.html', service=s, events=events, profiledEvents=profiledEvents, form=request.values, queryString=request.query_string)
+
+@app.route('/service/<sid>/events/<type>', methods=["GET", "POST"])
+@requiresLogin
+def routeViewServicesEvents(sid, type):
+	s = Service.Fetch(sid)
+	if s == None:
+		flash('The requested service does not exist!')
+		return redirect(url_for('routeViewIndex'))
+
 	# fetch all events
-	find = None
+	find = {}
 	group = None
+	sort = 'time'
 
 	if 'find' in request.values and len(request.values['find']) > 0:
 		find = ast.literal_eval(request.values['find'])
+	find['type'] = type
 	if 'group' in request.values and len(request.values['group']) > 0:
 		group = request.values['group']
+	if 'sort' in request.values and len(request.values['sort']) > 0:
+		sort = request.values['sort']
 
-	events = Event.FetchFromService(s.id, findFilter=find)
+	events = Event.FetchFromService(s.id, findFilter=find, sortBy=sort)
 
 	if group != None:
 		newEvents = []
@@ -118,7 +135,65 @@ def routeViewServices(sid):
 					e.resolved = True
 					e.resolvedEventId = str(re.id)
 
-	return render_template('service.html', service=s, events=events, form=request.values, queryString=request.query_string, canBeResolved=canBeResolved)
+	return render_template('serviceEvents.html', service=s, type=type, events=events, form=request.values, queryString=request.query_string, canBeResolved=canBeResolved, isProfiledEvent=False)
+
+@app.route('/service/<sid>/profiledEvents/<type>', methods=["GET", "POST"])
+@requiresLogin
+def routeViewServicesProfiledEvents(sid, type):
+	s = Service.Fetch(sid)
+	if s == None:
+		flash('The requested service does not exist!')
+		return redirect(url_for('routeViewIndex'))
+
+	# fetch all events
+	find = {}
+	group = None
+	sort = 'time'
+
+	if 'find' in request.values and len(request.values['find']) > 0:
+		find = ast.literal_eval(request.values['find'])
+	find['type'] = type
+	if 'group' in request.values and len(request.values['group']) > 0:
+		group = request.values['group']
+	if 'sort' in request.values and len(request.values['sort']) > 0:
+		sort = request.values['sort']
+
+	events = ProfilerEvent.FetchFromService(s.id, findFilter=find, sortBy=sort)
+
+	if group != None:
+		newEvents = []
+		for e in events:
+			found = False
+			for ne in newEvents:
+				if group in e.datas and group in ne.datas and e.datas[group] == ne.datas[group]:
+					found = True
+					ne.datas['time'] += 1
+					break
+			if not found:
+				e.datas['time'] = 1
+				newEvents.append(e)
+		events = newEvents
+
+	# fetch all resolvedEvents and mark matching events as resolved
+	canBeResolved = False
+	resolvedEvents = ResolvedEvent.FetchFromService(sid)
+	if len(resolvedEvents) > 0:
+		canBeResolved = True
+		for e in events:
+			e.resolved = False
+
+	for re in resolvedEvents:
+		for e in events:
+			if re.type == e.type:
+				allMatch = True
+				for key in re.datas:
+					if key not in e.datas or e.datas[key] != re.datas[key]:
+						allMatch = False
+				if allMatch:
+					e.resolved = True
+					e.resolvedEventId = str(re.id)
+
+	return render_template('serviceEvents.html', service=s, type=type, events=events, form=request.values, queryString=request.query_string, canBeResolved=canBeResolved, isProfiledEvent=True)
 
 @app.route('/event/<eid>')
 @requiresLogin

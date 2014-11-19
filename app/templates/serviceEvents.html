@@ -1,0 +1,115 @@
+
+{% extends "layout.html" %}
+
+{% block body %}
+<h1 class="page-header">
+  <a href="{{ url_for('routeViewIndex') }}">Services</a> / <a href="{{ url_for('routeViewServices', sid=service.id) }}">{{ service.data.name }}</a> / {{ type }}
+  <div class="btn-group">
+    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+      <span class="glyphicon glyphicon-cog"></span>
+    </button>
+    <ul class="dropdown-menu">
+      <li><a href="{{ url_for('routeViewServicesGetForm', sid=service.id) }}">Edit</a></li>
+      <li><a href="{{ url_for('routeViewServicesDelete', sid=service.id) }}">Delete</a></li>
+    </ul>
+  </div>
+</h1>
+
+<div>
+  <form class="form-inline" method="get" action="{% if isProfiledEvent == True %}{{ url_for('routeViewServicesProfiledEvents', sid=service.id, type=type) }}{% else %}{{ url_for('routeViewServicesEvents', sid=service.id, type=type) }}{% endif %}" role="form">
+    <div class="form-group">
+      <label class="sr-only" for="findField">Find</label>
+      <input name="find" type="text" class="form-control" id="findField" placeholder="{'type': 'test'}" value="{% if form != None and 'find' in form %}{{ form['find'] }}{% endif %}">
+    </div>
+    <div class="form-group">
+      <label class="sr-only" for="findField">Group by</label>
+      <input name="group" type="text" class="form-control" id="groupField" placeholder="group-by-field" value="{% if form != None and 'group' in form %}{{ form['group'] }}{% endif %}">
+    </div>
+    <div class="form-group">
+      <label class="sr-only" for="findField">Sort by</label>
+      <input name="sort" type="text" class="form-control" id="sortField" placeholder="sort-by" value="{% if form != None and 'sort' in form %}{{ form['sort'] }}{% endif %}">
+    </div>
+    <div class="form-group">
+      <label class="sr-only" for="findField">Show fields</label>
+      <input name="fields" type="text" class="form-control" id="showField" placeholder="show-fields" value="{% if form != None and 'fields' in form %}{{ form['fields'] }}{% endif %}">
+    </div>
+    <button type="submit" class="btn btn-default">Filter</button>
+  </form>
+</div>
+
+{%
+  set nbEvents = events|length
+%}
+{%
+  set fields = []
+%}
+{% if form != None and 'group' in form %}
+{%
+  set f = fields.append(form['group'])
+%}
+{% endif %}
+{% if form != None and 'fields' in form %}
+{%
+  set f = fields.extend(form['fields'].split())
+%}
+{% endif %}
+
+<div>
+  <div class="table-responsive">
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th class="col-md-1">Status</th>
+          <th class="col-md-2">Time</th>
+          <th class="col-md-2">Type</th>
+
+	  {% for f in fields %}
+	  <th class="col-md-2">{{ f }}</th>
+	  {% endfor %}
+
+          <th class="col-md-2">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+	{% for event in events %}
+        <tr>
+          <td class="col-md-1">{% if canBeResolved == True %}<img src="{% if event.resolved == True %}{{ url_for('static', filename='img/status-green.png') }}{% else %}{{ url_for('static', filename='img/status-red.png') }}{% endif %}" alt="" />{% endif %}</td>
+          <td class="col-md-2">{{ event.datas.time|safe }}</td>
+          <td class="col-md-2"><a href="{{ url_for('routeViewServicesEvent', eid=event.id) }}">{{ event.type|safe }}</a></td>
+
+	  {% for f in fields %}
+	  <td class="col-md-2">{{ event.datas[f] }}</td>
+	  {% endfor %}
+
+	  <td class="col-md-2">
+	    <a href="{{ url_for('routeViewServicesArchiveEvent', eid=event.id) + '?' + queryString }}">Archive</a>
+	    <a href="{{ url_for('routeViewServicesDeleteEvent', eid=event.id) + '?' + queryString }}">Del</a>
+	  </td>
+        </tr>
+	{% endfor %}
+
+	{% if nbEvents > 0: %}
+	<tr>
+	  <td class="col-md-1">Total:</td>
+	  <td class="col-md-3">{{ events|length }}</td>
+
+	  <td class="col-md-2" />
+	  {% for f in fields %}
+	  <td class="col-md-2" />
+	  {% endfor %}
+
+	  <td class="col-md-2" >
+	    <a href="{{ url_for('routeViewServicesArchiveEvents', sid=service.id) + '?' + queryString }}">Archive All</a>
+	    <a href="{{ url_for('routeViewServicesDeleteEvents', sid=service.id) + '?' + queryString }}">Del All</a>
+	  </td>
+	</tr>
+	{% else %}
+	<tr>
+	  <td class="col-md-12"><em>Unbelievable. No event here so far</em></td>
+	</tr>
+	{% endif %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
