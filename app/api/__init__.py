@@ -4,7 +4,7 @@ from flask import session, url_for, request, Response
 from bson import json_util
 
 from app import app
-from app.model import Event, ResolvedEvent, Service
+from app.model import Event, ResolvedEvent, Service, ProfilerEvent
 
 # Authentication
 def authenticate():
@@ -63,3 +63,23 @@ def routeApiArchiveResolvedEvent(reid):
 		return 'This resolved event doesn\'t exist', 404
 	re.ArchiveEvents()
 	return 'ok'
+
+@app.route('/api/profiler/<type>', methods=['POST'])
+@requiresAuth
+def routeApiNewProfilerEvent(type):
+	data = json_util.loads(request.data)
+
+	events = ProfilerEvent.FetchBySidAndType(session['sid'], type)
+	for d in data['events']:
+		data['events'][d]['event'] = d
+		newEvent = ProfilerEvent(session['sid'], type, data['events'][d])
+		found = False
+		for e in events:
+			if d == e.datas['event']:
+				e.Update(newEvent)
+				found = True
+		if not found:
+			events.append(newEvent)
+			newEvent.Insert()
+	return 'ok'
+
