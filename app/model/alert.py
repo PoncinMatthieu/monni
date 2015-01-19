@@ -1,5 +1,5 @@
 
-import json
+import json, requests
 from bson import json_util, ObjectId
 
 from lib import mails
@@ -42,7 +42,10 @@ class Alert():
 
 		print(self.datas['mail-raised-object'] + ' ' + self.datas['mail-raised-data'])
 		smtp = mails.InitSmtp(app.config['SMTP_HOST'], app.config['SMTP_USER'], app.config['SMTP_PASS'])
-		mails.SendMail(smtp, app.config['ALERT_MAIL_FROM'], app.config['ALERT_MAIL_TO'], self.datas['mail-raised-object'], self.datas['mail-raised-data'])
+		mails.Send(smtp, app.config['ALERT_MAIL_FROM'], app.config['ALERT_MAIL_TO'], self.datas['mail-raised-object'], self.datas['mail-raised-data'])
+		if 'ALERT_SMS_NEXMO_KEY' in app.config and 'ALERT_SMS_NEXMO_SECRET' in app.config:
+			for to in app.config['ALERT_SMS_TO']:
+				requests.post('https://rest.nexmo.com/sms/json', params={'api_key': app.config['ALERT_SMS_NEXMO_KEY'], 'api_secret': app.config['ALERT_SMS_NEXMO_SECRET'], 'from': 'Monni', 'to': to, 'text': self.datas['mail-raised-object']})
 
 		if newId != None:
 			self.id = str(newId)
@@ -58,6 +61,9 @@ class Alert():
 
 		print(self.datas['mail-closed-object'] + ' ' + self.datas['mail-closed-data'])
 		smtp = mails.InitSmtp(app.config['SMTP_HOST'], app.config['SMTP_USER'], app.config['SMTP_PASS'])
-		mails.SendMail(smtp, app.config['ALERT_MAIL_FROM'], app.config['ALERT_MAIL_TO'], self.datas['mail-closed-object'], self.datas['mail-closed-data'])
+		mails.Send(smtp, app.config['ALERT_MAIL_FROM'], app.config['ALERT_MAIL_TO'], self.datas['mail-closed-object'], self.datas['mail-closed-data'])
+		if 'ALERT_SMS_NEXMO_KEY' in app.config and 'ALERT_SMS_NEXMO_SECRET' in app.config:
+			for to in app.config['ALERT_SMS_TO']:
+				requests.post('https://rest.nexmo.com/sms/json', params={'api_key': app.config['ALERT_SMS_NEXMO_KEY'], 'api_secret': app.config['ALERT_SMS_NEXMO_SECRET'], 'from': 'Monni', 'to': to, 'text': self.datas['mail-closed-object']})
 
 		return db.closedAlerts.insert(newAlert.datas)
