@@ -10,7 +10,7 @@ def InitSmtp(smtpHost, smtpUser, smtpPass):
 	smtp.login(smtpUser, smtpPass)
 	return smtp
 
-def SendMail(smtp, fromEmail, toEmail, subject, body):
+def Send(smtp, fromEmail, toEmail, subject, body):
 	body_charset = header_charset = "UTF-8"
 	msg = MIMEText(body.encode(body_charset), 'plain', body_charset)
 	msg['From'] = formataddr((fromEmail, fromEmail))
