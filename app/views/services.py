@@ -91,6 +91,8 @@ def routeViewServicesEvents(sid, type):
 	find = {}
 	group = None
 	sort = 'time'
+	skip = 0
+	limit = 100
 
 	if 'find' in request.values and len(request.values['find']) > 0:
 		find = ast.literal_eval(request.values['find'])
@@ -99,8 +101,16 @@ def routeViewServicesEvents(sid, type):
 		group = request.values['group']
 	if 'sort' in request.values and len(request.values['sort']) > 0:
 		sort = request.values['sort']
+	if 'skip' in request.values and len(request.values['skip']) > 0:
+		skip = int(request.values['skip'])
+	if 'limit' in request.values and len(request.values['limit']) > 0:
+		limit = int(request.values['limit'])
 
-	events = Event.FetchFromService(s.id, findFilter=find, sortBy=sort)
+	if limit == 0:
+		limit = None
+
+	totalCount = Event.Count(s.id, find)
+	events = Event.FetchFromService(s.id, findFilter=find, sortBy=sort, skip=skip, limit=limit)
 
 	if group != None:
 		newEvents = []
@@ -135,7 +145,7 @@ def routeViewServicesEvents(sid, type):
 					e.resolved = True
 					e.resolvedEventId = str(re.id)
 
-	return render_template('serviceEvents.html', service=s, type=type, events=events, form=request.values, queryString=request.query_string, canBeResolved=canBeResolved, isProfiledEvent=False)
+	return render_template('serviceEvents.html', service=s, type=type, events=events, form=request.values, queryString=request.query_string, totalCount=totalCount, canBeResolved=canBeResolved, isProfiledEvent=False)
 
 @app.route('/service/<sid>/profiledEvents/<type>', methods=["GET", "POST"])
 @requiresLogin
