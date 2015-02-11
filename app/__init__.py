@@ -12,7 +12,7 @@ app.config.from_pyfile(globals.PROJECT_DIR + '/config/default.cfg')
 
 # Get access to databases replica set.
 # in case we have no replica set (preferably only for dev environment) we use a normal connection.
-print("Creating 'db' replica set connection with read pref PRIMARY_PREFERRED")
+print("Creating 'db' replica set connection with read pref SECONDARY_PREFERRED")
 dbConnection = db.Connection()
 dbConnection.connect(app.config['DB_HOST'], app.config['DB_REPLICA_SET'])
 print("Using db '" + app.config['DB_NAME'] + "'")
