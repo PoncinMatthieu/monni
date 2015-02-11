@@ -15,11 +15,15 @@ class Event():
 		return db.events.aggregate([{'$group': {_id: "$type"}}])
 
 	@staticmethod
-	def FetchAll(findFilter = {}, projection = None, sortBy = None, distinctKey = None):
+	def FetchAll(findFilter = {}, projection = None, sortBy = None, skip = None, limit = None, distinctKey = None):
 		events = []
 		c = db.events.find(findFilter, projection)
 		if sortBy:
 			c = c.sort(sortBy,-1)
+		if skip:
+			c = c.skip(skip)
+		if limit:
+			c = c.limit(limit)
 		if distinctKey:
 			return c.distinct(distinctKey)
 		for e in c:
@@ -27,11 +31,18 @@ class Event():
 		return events
 
 	@staticmethod
-	def FetchFromService(sid, findFilter = {}, projection = None, sortBy = None, distinctKey = None):
+	def Count(sid, findFilter = {}):
 		if findFilter == None:
 			findFilter = {}
 		findFilter['sid'] = ObjectId(sid)
-		return Event.FetchAll(findFilter, projection, sortBy, distinctKey)
+		return db.events.find(findFilter).count()
+
+	@staticmethod
+	def FetchFromService(sid, findFilter = {}, projection = None, sortBy = None, skip = None, limit = None, distinctKey = None):
+		if findFilter == None:
+			findFilter = {}
+		findFilter['sid'] = ObjectId(sid)
+		return Event.FetchAll(findFilter, projection, sortBy, skip, limit, distinctKey)
 
 	@staticmethod
 	def FetchOfType(type, projection = None):

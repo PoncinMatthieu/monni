@@ -16,7 +16,15 @@
 </h1>
 
 <div>
+  <div>Total number of events: {{ totalCount }}</div><br/>
   <form class="form-inline" method="get" action="{% if isProfiledEvent == True %}{{ url_for('routeViewServicesProfiledEvents', sid=service.id, type=type) }}{% else %}{{ url_for('routeViewServicesEvents', sid=service.id, type=type) }}{% endif %}" role="form">
+    <div class="form-group">
+      Skip <input name="skip" type="text" class="form-control" id="skipField" placeholder="0" value="{% if form != None and 'skip' in form %}{{ form['skip'] }}{% else %}0{% endif %}">
+    </div>
+    <div class="form-group">
+      Limit <input name="limit" type="text" class="form-control" id="limitField" placeholder="100" value="{% if form != None and 'limit' in form %}{{ form['limit'] }}{% else %}100{% endif %}">
+    </div>
+    <br/>
     <div class="form-group">
       <label class="sr-only" for="findField">Find</label>
       <input name="find" type="text" class="form-control" id="findField" placeholder="{'type': 'test'}" value="{% if form != None and 'find' in form %}{{ form['find'] }}{% endif %}">
