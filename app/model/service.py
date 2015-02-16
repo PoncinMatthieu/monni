@@ -110,7 +110,7 @@ class Service():
 						'mail-raised-object': 'Alert raised: Service ' + self.data['name'] + ' is down',
 						'mail-raised-data': 'Status check failed with status code: ' + str(self.status) + "\nResult:\n" + resultMessage,
 						'mail-closed-object': 'Alert closed: Service ' + self.data['name'] + ' is up',
-						'mail-closed-data': 'The service is back online'
+						'mail-closed-data': 'The service is back online.'
 						})
 				alert.Raise()
 		else:

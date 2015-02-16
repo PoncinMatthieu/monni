@@ -1,5 +1,7 @@
 
-import json, requests
+import json
+import requests
+import datetime
 from bson import json_util, ObjectId
 
 from lib import mails
@@ -38,6 +40,7 @@ class Alert():
 	# Raise a new alert, saving in the currentAlerts
 	# Send a mail using the alert datas: 'mail-raised-object' 'mail-raised-data'
 	def Raise(self):
+		datas['raisedTime'] = datetime.datetime.now()
 		newId = db.currentAlerts.insert(self.datas)
 
 		print(self.datas['mail-raised-object'] + ' ' + self.datas['mail-raised-data'])
@@ -59,11 +62,14 @@ class Alert():
 		newAlert = Alert(self.datas)
 		db.currentAlerts.remove({'_id': ObjectId(self.id)})
 
+		raisedTime = self.datas['raisedTime']
+		alertTime = datetime.datetime.now() - raisedTime
+		mailContent = self.datas['mail-closed-data'] + "\n\nAlert closed after " + str(alertTime) + ".\n\nError was:\n" + self.datas['mail-raised-data']
+
 		print(self.datas['mail-closed-object'] + ' ' + self.datas['mail-closed-data'])
 		smtp = mails.InitSmtp(app.config['SMTP_HOST'], app.config['SMTP_USER'], app.config['SMTP_PASS'])
 		mails.Send(smtp, app.config['ALERT_MAIL_FROM'], app.config['ALERT_MAIL_TO'], self.datas['mail-closed-object'], self.datas['mail-closed-data'])
 		if 'ALERT_SMS_NEXMO_KEY' in app.config and 'ALERT_SMS_NEXMO_SECRET' in app.config:
 			for to in app.config['ALERT_SMS_TO']:
 				requests.post('https://rest.nexmo.com/sms/json', params={'api_key': app.config['ALERT_SMS_NEXMO_KEY'], 'api_secret': app.config['ALERT_SMS_NEXMO_SECRET'], 'from': 'Monni', 'to': to, 'text': self.datas['mail-closed-object']})
-
 		return db.closedAlerts.insert(newAlert.datas)

@@ -39,10 +39,27 @@
 
     <div class="container-fluid">
        <div class="col-sm-3 col-md-2 sidebar">
+         <h3><div class="btn-group">
+	     <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+	       <span class="glyphicon glyphicon-cog"></span>
+	     </button>
+	     <ul class="dropdown-menu">
+	       <li><a href="{{ url_for('routeViewServicesGetForm') }}">Create new service</a></li>
+	     </ul>
+	   </div>
+	   Services
+	 </h3>
           <ul class="nav nav-sidebar">
-            <li class="{% if sidebar == 'services' %}active{% endif %}"><a href="{{ url_for('routeViewIndex') }}">Services</a></li>
-            <li class="{% if sidebar == 'resolvedEvents' %}active{% endif %}"><a href="{{ url_for('routeViewResolvedEvents') }}">Resolved events</a></li>
+	    {% for service in services %}
+            <li class="{% if sidebar == 'service-' + service.id %}active{% endif %}">
+              {% if service.IsStatusCheckable()  %}<img src="{% if service.status != 200 %}{{ url_for('static', filename='img/status-red.png') }}{% else %}{{ url_for('static', filename='img/status-green.png') }}{% endif %}" alt="{{ service.status }}" />{% endif %}
+              <a href="{{ url_for('routeViewServices', sid=service.id) }}">{{ service.data.name }}</a>
+            </li>
+	    {% endfor %}
           </ul>
+	  <ul class="nav nav-sidebar">
+            <li class="{% if sidebar == 'resolvedEvents' %}active{% endif %}"><a href="{{ url_for('routeViewResolvedEvents') }}">Resolved events</a></li>
+	  </ul>
        </div>
 
        <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">

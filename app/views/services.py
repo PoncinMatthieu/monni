@@ -7,6 +7,7 @@ from app import app
 from app.model import Event, ProfilerEvent, ResolvedEvent, Service
 from login import requiresLogin
 from app.threads import serviceStatus
+from app.threads import services
 
 @app.route('/form/service', defaults={'sid': None}, methods=["GET"])
 @app.route('/form/service/<sid>', methods=["GET"])
@@ -15,7 +16,7 @@ def routeViewServicesGetForm(sid):
 	s = None
 	if sid != None:
 		s = Service.Fetch(sid)
-	return render_template('form/service.html', layout="layout.html", service=s)
+	return render_template('form/service.html', layout="layout.html", sidebar="service-" + s.id, services=services, service=s)
 
 @app.route('/form/service', defaults={'sid': None}, methods=["POST"])
 @app.route('/form/service/<sid>', methods=["POST"])
@@ -77,7 +78,7 @@ def routeViewServices(sid):
 	# fetch all event type
 	events = Event.FetchFromService(s.id, distinctKey='type')
 	profiledEvents = ProfilerEvent.FetchFromService(s.id, distinctKey='type')
-	return render_template('service.html', service=s, events=events, profiledEvents=profiledEvents, form=request.values, queryString=request.query_string)
+	return render_template('service.html', sidebar="service-" + s.id, services=services, service=s, events=events, profiledEvents=profiledEvents, form=request.values, queryString=request.query_string)
 
 @app.route('/service/<sid>/events/<type>', methods=["GET", "POST"])
 @requiresLogin
@@ -145,7 +146,7 @@ def routeViewServicesEvents(sid, type):
 					e.resolved = True
 					e.resolvedEventId = str(re.id)
 
-	return render_template('serviceEvents.html', service=s, type=type, events=events, form=request.values, queryString=request.query_string, totalCount=totalCount, canBeResolved=canBeResolved, isProfiledEvent=False)
+	return render_template('serviceEvents.html', sidebar="service-" + s.id, services=services, service=s, type=type, events=events, form=request.values, queryString=request.query_string, totalCount=totalCount, canBeResolved=canBeResolved, isProfiledEvent=False)
 
 @app.route('/service/<sid>/profiledEvents/<type>', methods=["GET", "POST"])
 @requiresLogin
@@ -203,7 +204,7 @@ def routeViewServicesProfiledEvents(sid, type):
 					e.resolved = True
 					e.resolvedEventId = str(re.id)
 
-	return render_template('serviceEvents.html', service=s, type=type, events=events, form=request.values, queryString=request.query_string, canBeResolved=canBeResolved, isProfiledEvent=True)
+	return render_template('serviceEvents.html', sidebar="service-" + s.id, services=services, service=s, type=type, events=events, form=request.values, queryString=request.query_string, canBeResolved=canBeResolved, isProfiledEvent=True)
 
 @app.route('/event/<eid>')
 @requiresLogin
@@ -212,7 +213,7 @@ def routeViewServicesEvent(eid):
 	if e == None:
 		return 'This event doesn\'t exist', 404
 	e.datas_dump = json.dumps(e.datas, default=json_util.default)
-	return render_template('event.html', event=e)
+	return render_template('event.html', services=services, event=e)
 
 @app.route('/delete/event/<eid>', methods=['GET', 'POST'])
 @requiresLogin
