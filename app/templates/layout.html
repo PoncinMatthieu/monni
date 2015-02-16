@@ -52,8 +52,8 @@
           <ul class="nav nav-sidebar">
 	    {% for service in services %}
             <li class="{% if sidebar == 'service-' + service.id %}active{% endif %}">
-              {% if service.IsStatusCheckable()  %}<img src="{% if service.status != 200 %}{{ url_for('static', filename='img/status-red.png') }}{% else %}{{ url_for('static', filename='img/status-green.png') }}{% endif %}" alt="{{ service.status }}" />{% endif %}
-              <a href="{{ url_for('routeViewServices', sid=service.id) }}">{{ service.data.name }}</a>
+              <a class="row" href="{{ url_for('routeViewServices', sid=service.id) }}"><div class="col-sm-2"> {% if service.IsStatusCheckable()  %}<img src="{% if service.status != 200 %}{{ url_for('static', filename='img/status-red.png') }}{% else %}{{ url_for('static', filename='img/status-green.png') }}{% endif %}" alt="{{ service.status }}" />{% endif %}</div>
+	      <div class="col-sm-10">{{ service.data.name }}</div></a>
             </li>
 	    {% endfor %}
           </ul>
