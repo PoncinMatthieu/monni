@@ -40,7 +40,7 @@ class Alert():
 	# Raise a new alert, saving in the currentAlerts
 	# Send a mail using the alert datas: 'mail-raised-object' 'mail-raised-data'
 	def Raise(self):
-		datas['raisedTime'] = datetime.datetime.now()
+		self.datas['raisedTime'] = datetime.datetime.now()
 		newId = db.currentAlerts.insert(self.datas)
 
 		print(self.datas['mail-raised-object'] + ' ' + self.datas['mail-raised-data'])
