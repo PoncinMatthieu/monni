@@ -21,5 +21,6 @@ def Send(smtp, fromEmail, toEmail, subject, body):
 		res = smtp.sendmail(fromEmail, toEmail, msg.as_string())
 	except smtplib.SMTPException, e:
 		print("Failed to send alert email!")
+		print(str(e))
 		pass
 
