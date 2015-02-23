@@ -28,3 +28,8 @@ SMTP_PASS = ''
 ALERT_RAISE_AFTER = 180 # 3 minutes
 ALERT_MAIL_FROM = ''
 ALERT_MAIL_TO = ''
+
+# SMS Alert with nexmo
+ALERT_SMS_NEXMO_KEY = ''
+ALERT_SMS_NEXMO_SECRET = ''
+ALERT_SMS_TO = []
