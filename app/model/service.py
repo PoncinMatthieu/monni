@@ -95,15 +95,13 @@ class Service():
 
 	def CheckStatus(self):
 		status, resultMessage = self.TryCheckStatus()
-		# if status no good, try again once more, to avoid a false positive
-		if status != 200:
-			status, resultMessage = self.TryCheckStatus()
 
-		self.status = status
-		if self.status != 200:
-			# check if an alert was already raised
-			# if not, create one
-			if not Alert.WasRaised({'type': 'service', 'eid': self.id}):
+		# if status no good, create an alert
+		if status != 200:
+			self.status = status
+
+			# check if an alert was already created, if not, create one
+			if not Alert.Exists({'type': 'service', 'eid': self.id}):
 				alert = Alert({
 						'type': 'service',
 						'eid': self.id,
@@ -112,11 +110,18 @@ class Service():
 						'mail-closed-object': 'Alert closed: Service ' + self.data['name'] + ' is up',
 						'mail-closed-data': 'The service is back online.'
 						})
-				alert.Raise()
+				alert.Create()
+			else:
+				# alert already exist, but was not raised?
+				alert = Alert.Fetch({'type': 'service', 'eid': self.id, 'raised': False})
+				if alert:
+					# raise the alert only after given time, to avoid false positives.
+					if (datetime.datetime.now() - alert.datas['createdTime']).seconds > app.config['ALERT_RAISE_AFTER']:
+						alert.Raise()
 		else:
 			# check if an alert was already raised
 			# if yes, close it
-			alert = Alert.FetchRaised({'type': 'service', 'eid': self.id})
+			alert = Alert.Fetch({'type': 'service', 'eid': self.id})
 			if alert != None:
 				alert.Close()
 
