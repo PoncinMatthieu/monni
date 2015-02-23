@@ -14,9 +14,11 @@ from app.threads import services
 @requiresLogin
 def routeViewServicesGetForm(sid):
 	s = None
+	sidebar = "service-"
 	if sid != None:
 		s = Service.Fetch(sid)
-	return render_template('form/service.html', layout="layout.html", sidebar="service-" + s.id, services=services, service=s)
+		sidebar += s.id
+	return render_template('form/service.html', layout="layout.html", sidebar=sidebar, services=services, service=s)
 
 @app.route('/form/service', defaults={'sid': None}, methods=["POST"])
 @app.route('/form/service/<sid>', methods=["POST"])

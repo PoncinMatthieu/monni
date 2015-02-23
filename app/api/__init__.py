@@ -64,18 +64,27 @@ def routeApiArchiveResolvedEvent(reid):
 	re.ArchiveEvents()
 	return 'ok'
 
+# requires an array of keys to be profiled and an array of event data each containing those keys and any other amount of data 
 @app.route('/api/profiler/<type>', methods=['POST'])
 @requiresAuth
 def routeApiNewProfilerEvent(type):
 	data = json_util.loads(request.data)
 
+	if 'keys' not in data:
+		return 'ok' # old version of events, those will be deleted after we deploy the api on prod
+
+	profiledKeys = data['keys']
 	events = ProfilerEvent.FetchBySidAndType(session['sid'], type)
-	for d in data['events']:
-		data['events'][d]['event'] = d
-		newEvent = ProfilerEvent(session['sid'], type, data['events'][d])
+	for e in data['events']:
+		newEvent = ProfilerEvent(session['sid'], type, e)
 		found = False
 		for e in events:
-			if d == e.datas['event']:
+			equal = True
+			for k in profiledKeys:
+				if e[k] != newEvent[k]:
+					equal = False
+					break
+			if equal:
 				e.Update(newEvent)
 				found = True
 				break
