@@ -124,6 +124,7 @@ class Service():
 			alert = Alert.Fetch({'type': 'service', 'eid': self.id})
 			if alert != None:
 				alert.Close()
+			self.status = status
 
 	def TryCheckStatus(self):
 		status = 0
