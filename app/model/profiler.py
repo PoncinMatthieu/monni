@@ -75,8 +75,19 @@ class ProfilerEvent():
 	# updating average and max values
 	def Update(self, newEvent):
 		self.datas['time'] = newEvent.datas['time']
-		if self.datas['max'] < newEvent.datas['max']:
+
+		if 'min' in self.datas and 'min' in newEvent.datas:
+			if self.datas['min'] > newEvent.datas['min']:
+				self.datas['min'] = newEvent.datas['min']
+		elif 'min' in newEvent.datas:
+			self.datas['min'] = newEvent.datas['min']
+
+		if 'max' in self.datas and 'max' in newEvent.datas:
+			if self.datas['max'] < newEvent.datas['max']:
+				self.datas['max'] = newEvent.datas['max']
+		elif 'max' in newEvent.datas:
 			self.datas['max'] = newEvent.datas['max']
+
 		self.datas['avg'] = ((self.datas['avg'] * self.datas['count']) + (newEvent.datas['avg'] * newEvent.datas['count'])) / (self.datas['count'] + newEvent.datas['count'])
 		self.datas['count'] += newEvent.datas['count']
 		db.profilerEvents.update({'_id': ObjectId(self.id)}, {'$set': self.datas})
