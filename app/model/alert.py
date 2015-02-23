@@ -42,10 +42,12 @@ class Alert():
 	def Raise(self):
 		self.datas['raisedTime'] = datetime.datetime.now()
 		newId = db.currentAlerts.insert(self.datas)
+		extraData = "\n\nAlert Id: " + str(newId)
+		extraData += "\nRaised at: " + str(self.datas['raisedTime'])
 
 		print(self.datas['mail-raised-object'] + ' ' + self.datas['mail-raised-data'])
 		smtp = mails.InitSmtp(app.config['SMTP_HOST'], app.config['SMTP_USER'], app.config['SMTP_PASS'])
-		mails.Send(smtp, app.config['ALERT_MAIL_FROM'], app.config['ALERT_MAIL_TO'], self.datas['mail-raised-object'], self.datas['mail-raised-data'])
+		mails.Send(smtp, app.config['ALERT_MAIL_FROM'], app.config['ALERT_MAIL_TO'], self.datas['mail-raised-object'], self.datas['mail-raised-data'] + extraData)
 		if 'ALERT_SMS_NEXMO_KEY' in app.config and 'ALERT_SMS_NEXMO_SECRET' in app.config:
 			for to in app.config['ALERT_SMS_TO']:
 				requests.post('https://rest.nexmo.com/sms/json', params={'api_key': app.config['ALERT_SMS_NEXMO_KEY'], 'api_secret': app.config['ALERT_SMS_NEXMO_SECRET'], 'from': 'Monni', 'to': to, 'text': self.datas['mail-raised-object']})
@@ -64,11 +66,14 @@ class Alert():
 
 		raisedTime = self.datas['raisedTime']
 		alertTime = datetime.datetime.now() - raisedTime
-		mailContent = self.datas['mail-closed-data'] + "\n\nAlert closed after " + str(alertTime) + ".\n\nError was:\n" + self.datas['mail-raised-data']
+		mailContent = self.datas['mail-closed-data']
+		mailContent += "\n\nAlert Id: " + str(self.id)
+		mailContent += "\nDowntime: " + str(alertTime)
+		mailContent += "\nError was:\n" + self.datas['mail-raised-data']
 
 		print(self.datas['mail-closed-object'] + ' ' + self.datas['mail-closed-data'])
 		smtp = mails.InitSmtp(app.config['SMTP_HOST'], app.config['SMTP_USER'], app.config['SMTP_PASS'])
-		mails.Send(smtp, app.config['ALERT_MAIL_FROM'], app.config['ALERT_MAIL_TO'], self.datas['mail-closed-object'], self.datas['mail-closed-data'])
+		mails.Send(smtp, app.config['ALERT_MAIL_FROM'], app.config['ALERT_MAIL_TO'], self.datas['mail-closed-object'], mailContent)
 		if 'ALERT_SMS_NEXMO_KEY' in app.config and 'ALERT_SMS_NEXMO_SECRET' in app.config:
 			for to in app.config['ALERT_SMS_TO']:
 				requests.post('https://rest.nexmo.com/sms/json', params={'api_key': app.config['ALERT_SMS_NEXMO_KEY'], 'api_secret': app.config['ALERT_SMS_NEXMO_SECRET'], 'from': 'Monni', 'to': to, 'text': self.datas['mail-closed-object']})
