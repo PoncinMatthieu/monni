@@ -107,8 +107,8 @@
 	  {% endfor %}
 
 	  <td class="col-md-2" >
-	    <a href="{{ url_for('routeViewServicesArchiveEvents', sid=service.id) + '?' + queryString }}">Archive All</a>
-	    <a href="{{ url_for('routeViewServicesDeleteEvents', sid=service.id) + '?' + queryString }}">Del All</a>
+	    <a href="{{ url_for('routeViewServicesArchiveEvents', sid=service.id, type=type) + '?' + queryString }}">Archive All</a>
+	    <a href="{{ url_for('routeViewServicesDeleteEvents', sid=service.id, type=type) + '?' + queryString }}">Del All</a>
 	  </td>
 	</tr>
 	{% else %}

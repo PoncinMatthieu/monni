@@ -32,6 +32,11 @@ def afterRequest(response):
 	response.headers.add('Access-Control-Allow-Credentials',  'true')
 	response.headers.add('Cache-Control', 'no-cache')
 	response.headers.add('Expires', '-1')
+
+	json = getattr(g, 'json', None)
+	if json:
+		response.headers['Content-type'] = 'application/json'
+
 	return response
 
 # Exceptions
@@ -40,7 +45,8 @@ def handleDefaultExceptions(error):
 	import traceback
 	trace = traceback.format_exc()
 	print('Exception occured while processing request: ' + request.path + '\n' + trace)
-	if request.referrer != None:
+	json = getattr(g, 'json', None)
+	if not json and request.referrer != None:
 		flash(error.message)
 		return redirect(request.referrer)
 

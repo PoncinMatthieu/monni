@@ -3,7 +3,9 @@ import datetime
 import json
 from bson import json_util, ObjectId
 
-from app import db
+from app import app, db
+
+cached_queries = []
 
 class ProfilerEvent():
 	# display the data
@@ -23,6 +25,15 @@ class ProfilerEvent():
 		return events
 
 	@staticmethod
+	def FetchAllAndCache(*args, **kwargs):
+		for q in cached_queries:
+			if q['args'] == args and q['kwargs'] == kwargs:
+				return q['result']
+		cache = {'args': args, 'kwargs': kwargs, 'result': ProfilerEvent.FetchAll(*args, **kwargs)}
+		cached_queries.append(cache)
+		return cache['result']
+
+	@staticmethod
 	def FetchBySidAndType(sid, type, findFilter = None, projection = None, sortBy = None):
 		if findFilter == None:
 			findFilter = {}
@@ -36,6 +47,39 @@ class ProfilerEvent():
 			findFilter = {}
 		findFilter['sid'] = ObjectId(sid)
 		return ProfilerEvent.FetchAll(findFilter, projection, sortBy, distinctKey)
+
+	@staticmethod
+	def FetchHistory(sid, type, period, fromDate, toDate):
+		events = []
+		print(str({'sid': ObjectId(sid), 'type': type, 'time': {'$gte': fromDate, '$lt': toDate}}))
+		c = db.profilerEventsHistory.find({'sid': ObjectId(sid), 'type': type, 'time': {'$gte': fromDate, '$lt': toDate}}).sort('time',1)
+		for e in c:
+			events.append(ProfilerEvent.Clone(e))
+		return events
+
+	# this method creates the profiled events history by storing the current ones in a separated collection
+	@staticmethod
+	def StoreAndResetCurrentEvents():
+		cursor = db.profilerEvents.find({}, {'_id': 0})
+		if cursor:
+			events = []
+			for e in cursor:
+				events.append(e)
+			if len(events) > 0:
+				db.profilerEventsHistory.insert(events)
+			db.profilerEvents.remove(w=1)
+			config = db.configs.find_one({'type': 'profiler'}, {'lastEventReset': 1, 'lastEventResetDue': 1})
+			db.configs.update({'type': 'profiler'}, {'$set': {'lastEventResetDue': config['lastEventReset'] + datetime.timedelta(seconds=app.config['EVENT_PROFILER_MIN_HISTORY_INTERVAL']), 'lastEventReset': config['lastEventResetDue']}}, w=1)
+
+	# this method check weather we need or not to save and reset profiler events
+	@staticmethod
+	def ResetingEventsRequired():
+		now = datetime.datetime.now()
+		config = db.configs.find_one({'type': 'profiler'}, {'lastEventResetDue': 1})
+		if not config:
+			db.configs.insert({'type': 'profiler', 'lastEventResetDue': now, 'lastEventReset': now}, w=1)
+			return True
+		return (now >= config['lastEventResetDue'])
 
 	@staticmethod
 	def Clone(data):

@@ -1,4 +1,5 @@
 
+import json
 from functools import wraps
 from flask import session, url_for, request, Response
 from bson import json_util
@@ -34,6 +35,7 @@ def requiresAuth(f):
 	@wraps(f)
 	def decorated(*args, **kwargs):
 		if performRequestAuth() != 1:
+			#print(request.data)
 			return authenticate()
 		return f(*args, **kwargs)
 	return decorated
@@ -73,15 +75,20 @@ def routeApiNewProfilerEvent(type):
 	if 'keys' not in data:
 		return 'ok' # old version of events, those will be deleted after we deploy the api on prod
 
+	# first check if events need to be reseted!
+	if ProfilerEvent.ResetingEventsRequired():
+		ProfilerEvent.StoreAndResetCurrentEvents()
+
+
 	profiledKeys = data['keys']
 	events = ProfilerEvent.FetchBySidAndType(session['sid'], type)
-	for e in data['events']:
-		newEvent = ProfilerEvent(session['sid'], type, e)
+	for newEventData in data['events']:
+		newEvent = ProfilerEvent(session['sid'], type, newEventData)
 		found = False
 		for e in events:
 			equal = True
 			for k in profiledKeys:
-				if e[k] != newEvent[k]:
+				if e.datas[k] != newEvent.datas[k]:
 					equal = False
 					break
 			if equal:

@@ -1,7 +1,8 @@
 
 import json, ast
-from bson import json_util
-from flask import render_template, redirect, request, session, flash, url_for
+import datetime
+from bson import json_util, ObjectId
+from flask import render_template, redirect, request, session, flash, url_for, g
 
 from app import app
 from app.model import Event, ProfilerEvent, ResolvedEvent, Service
@@ -78,8 +79,8 @@ def routeViewServices(sid):
 		return redirect(url_for('routeViewIndex'))
 
 	# fetch all event type
-	events = Event.FetchFromService(s.id, distinctKey='type')
-	profiledEvents = ProfilerEvent.FetchFromService(s.id, distinctKey='type')
+	events = Event.FetchAllAndCache({'sid': ObjectId(s.id)}, distinctKey='type')
+	profiledEvents = ProfilerEvent.FetchAllAndCache({'sid': ObjectId(s.id)}, distinctKey='type')
 	return render_template('service.html', sidebar="service-" + s.id, services=services, service=s, events=events, profiledEvents=profiledEvents, form=request.values, queryString=request.query_string)
 
 @app.route('/service/<sid>/events/<type>', methods=["GET", "POST"])
@@ -93,7 +94,7 @@ def routeViewServicesEvents(sid, type):
 	# fetch all events
 	find = {}
 	group = None
-	sort = 'time'
+	sort = '_id'
 	skip = 0
 	limit = 100
 
@@ -222,10 +223,10 @@ def routeViewServicesEvent(eid):
 def routeViewServicesDeleteEvent(eid):
 	return Delete(GetGroupedEvents(eid, request))
 
-@app.route('/delete/events/<sid>', methods=['GET', 'POST'])
+@app.route('/delete/events/<sid>/<type>', methods=['GET', 'POST'])
 @requiresLogin
-def routeViewServicesDeleteEvents(sid):
-	return Delete(GetGroupedEvents('', request, sid))
+def routeViewServicesDeleteEvents(sid, type):
+	return Delete(GetGroupedEvents('', request, sid, type))
 
 @app.route('/new/resolvedEvent/<sid>/<type>', methods=['POST'])
 @requiresLogin
@@ -241,10 +242,10 @@ def routeViewServicesNewResolvedEvent(sid, type):
 def routeViewServicesArchiveEvent(eid):
 	return Archive(GetGroupedEvents(eid, request))
 
-@app.route('/archive/events/<sid>', methods=['GET', 'POST'])
+@app.route('/archive/events/<sid>/<type>', methods=['GET', 'POST'])
 @requiresLogin
-def routeViewServicesArchiveEvents(sid):
-	return Archive(GetGroupedEvents('', request, sid))
+def routeViewServicesArchiveEvents(sid, type):
+	return Archive(GetGroupedEvents('', request, sid, type))
 
 
 # delete all events
@@ -274,7 +275,7 @@ def Archive(events):
 	return redirect(request.referrer)
 
 
-def GetGroupedEvents(eid, request, sid = None):
+def GetGroupedEvents(eid, request, sid = None, type = None):
 	find = None
 	group = None
 	if 'find' in request.values and len(request.values['find']) > 0:
@@ -284,7 +285,7 @@ def GetGroupedEvents(eid, request, sid = None):
 
 	# get first event to archive
 	tmpFind = None
-	if find != None:
+	if find:
 		tmpFind = dict(find)
 	if len(eid) > 0:
 		e = Event.Fetch(eid, findFilter=tmpFind)
@@ -293,11 +294,14 @@ def GetGroupedEvents(eid, request, sid = None):
 	if e == None:
 		return None
 
+	if not find:
+		find = {}
+	if type:
+		find['type'] = type
+
 	# if group is not null, we go fetch all events with group filter
 	events = []
 	if group != None and group in e.datas:
-		if find == None:
-			find = {}
 		find[group] = e.datas[group]
 		events = Event.FetchFromService(e.sid, findFilter=find)
 	elif len(eid) > 0:
@@ -305,3 +309,14 @@ def GetGroupedEvents(eid, request, sid = None):
 	else:
 		events = Event.FetchFromService(e.sid, findFilter=find)
 	return events
+
+@app.route('/service/profiler/history/<sid>/<type>', methods=['POST'])
+@requiresLogin
+def routeApiGetProfilerHistoryData(sid, type):
+	setattr(g, 'json', True)
+	period = request.json['period']
+	fromDate = datetime.datetime.utcfromtimestamp(request.json['from'] / 1000)
+	toDate = datetime.datetime.utcfromtimestamp(request.json['to'] / 1000)
+
+	events = ProfilerEvent.FetchHistory(sid, type, period, fromDate, toDate)
+	return '{"events": ' + str(events) + '}', 200

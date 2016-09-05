@@ -27,6 +27,7 @@
 {% endblock %}
 
 {% block js %}
+{{ super() }}
 <script type="text/javascript">
   function replacer(key, value) {
   if (key == "time") {

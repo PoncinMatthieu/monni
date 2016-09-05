@@ -5,6 +5,8 @@ from bson import json_util, ObjectId
 
 from app import db
 
+cached_queries = []
+
 class Event():
 	# display the data
 	def __repr__(self):
@@ -29,6 +31,15 @@ class Event():
 		for e in c:
 			events.append(Event.Clone(e))
 		return events
+
+	@staticmethod
+	def FetchAllAndCache(*args, **kwargs):
+		for q in cached_queries:
+			if q['args'] == args and q['kwargs'] == kwargs:
+				return q['result']
+		cache = {'args': args, 'kwargs': kwargs, 'result': Event.FetchAll(*args, **kwargs)}
+		cached_queries.append(cache)
+		return cache['result']
 
 	@staticmethod
 	def Count(sid, findFilter = {}):

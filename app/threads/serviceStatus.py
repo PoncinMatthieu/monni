@@ -1,5 +1,6 @@
 # This file handle threads that will check the services status
 
+import os
 import threading
 import atexit
 import requests
@@ -39,5 +40,8 @@ def InitServiceThreads():
 
 
 # init threads!
-InitServiceThreads()
-atexit.register(TerminateThreads)
+# don't start thread if launched from script folder
+current_folder_path, current_folder_name = os.path.split(os.getcwd())
+if current_folder_name != 'scripts':
+	InitServiceThreads()
+	atexit.register(TerminateThreads)

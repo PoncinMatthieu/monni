@@ -1,6 +1,11 @@
 
 {% extends "layout.html" %}
 
+{% block head %}
+  {{ super() }}
+  <link rel="stylesheet" href="https://s3.amazonaws.com/yousician-public/web-resources/bootstrap-datepicker/datepicker.css">
+{% endblock %}
+
 {% block body %}
 <h1 class="page-header">
   <a href="{{ url_for('routeViewIndex') }}">Services</a> / {{ service.data.name }}
@@ -53,4 +58,64 @@
   </div>
 </div>
 
+
+<div>
+  <div class="row">
+    <div class="col-md-12 vert-spacer divider"></div>  
+    <div class="col-sm-6">
+      <div class="form-group">
+	<label>Time interval:</label><input name="interval" type="number" class="form-control" id="interval" placeholder="60" value="60">
+      </div>
+    </div>
+    <div class="col-sm-6">
+      <label>From - To dates:</label>
+      <div class="input-daterange input-group" id="datepicker" data-provide="datepicker">
+	<input class="start form-control" type="text" value="">
+	<span class="input-group-addon">to</span>
+	<input class="end form-control" type="text" value="">
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-sm-3">
+      <button type="submit" class="btn btn-default" onclick="refreshGraph('{{ service.id }}', 'api_calls')">Refresh</button>
+    </div>
+  </div>
+
+  <div class="row">
+    
+    <div class="dropdown">
+      <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu_routes" data-toggle="dropdown" aria-expanded="true">
+	Dataset
+	<span class="caret"></span>
+      </button>
+      <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu_routes">
+	<li role="presentation"><a role="menuitem" tabindex="-1" href="#" onclick="selectDataset(['avg', 'min', 'max', 'count']);">All</a></li>
+	<li role="presentation"><a role="menuitem" tabindex="-1" href="#" onclick="selectDataset(['avg']);">Average</a></li>
+	<li role="presentation"><a role="menuitem" tabindex="-1" href="#" onclick="selectDataset(['min']);">Min</a></li>
+	<li role="presentation"><a role="menuitem" tabindex="-1" href="#" onclick="selectDataset(['max']);">Max</a></li>
+	<li role="presentation"><a role="menuitem" tabindex="-1" href="#" onclick="selectDataset(['count']);">Count</a></li>
+      </ul>
+    </div>
+  </div>
+  
+  <div id="latency_chart_legend"></div>
+  <div id="latency_chart_container"></div>
+
+  <div id="calls_chart_legend"></div>
+  <div id="calls_chart_container"></div>
+
+</div>
+
+
+{% endblock %}
+
+{% block js %}
+  {{ super() }}
+  <script>
+    var service = "{{ service.id }}";
+  </script>
+  <script src="https://s3.amazonaws.com/yousician-public/web-resources/bootstrap-datepicker/bootstrap-datepicker.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/1.0.1/Chart.min.js"></script>
+  <script src="{{ url_for('static', filename='js/profiler.js') }}"></script>
 {% endblock %}

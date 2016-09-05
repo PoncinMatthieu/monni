@@ -4,7 +4,7 @@ import requests
 import datetime
 from bson import json_util, ObjectId
 
-from lib import mails
+from lib import mails, nexmo
 from app import app, db
 
 class Alert():
@@ -52,7 +52,9 @@ class Alert():
 		mails.Send(smtp, app.config['ALERT_MAIL_FROM'], app.config['ALERT_MAIL_TO'], self.datas['mail-raised-object'], self.datas['mail-raised-data'] + extraData)
 		if 'ALERT_SMS_NEXMO_KEY' in app.config and 'ALERT_SMS_NEXMO_SECRET' in app.config:
 			for to in app.config['ALERT_SMS_TO']:
-				requests.post('https://rest.nexmo.com/sms/json', params={'api_key': app.config['ALERT_SMS_NEXMO_KEY'], 'api_secret': app.config['ALERT_SMS_NEXMO_SECRET'], 'from': 'Monni', 'to': to, 'text': self.datas['mail-raised-object']})
+				nexmo.send_sms(app.config['ALERT_SMS_NEXMO_KEY'], app.config['ALERT_SMS_NEXMO_SECRET'], to, self.datas['mail-raised-object'])
+			for to in app.config['ALERT_VOICE_TO']:
+				nexmo.send_voice(app.config['ALERT_SMS_NEXMO_KEY'], app.config['ALERT_SMS_NEXMO_SECRET'], to, self.datas['mail-raised-object'], 2)
 
 	# close the current alert and insert it in the closed alerts collection.
 	# Send mails and sms to inform the alert was closed if it was previously raised using datas: 'mail-closed-object' 'mail-closed-data'
@@ -74,5 +76,5 @@ class Alert():
 			mails.Send(smtp, app.config['ALERT_MAIL_FROM'], app.config['ALERT_MAIL_TO'], self.datas['mail-closed-object'], mailContent)
 			if 'ALERT_SMS_NEXMO_KEY' in app.config and 'ALERT_SMS_NEXMO_SECRET' in app.config:
 				for to in app.config['ALERT_SMS_TO']:
-					requests.post('https://rest.nexmo.com/sms/json', params={'api_key': app.config['ALERT_SMS_NEXMO_KEY'], 'api_secret': app.config['ALERT_SMS_NEXMO_SECRET'], 'from': 'Monni', 'to': to, 'text': self.datas['mail-closed-object']})
+					nexmo.send_sms(app.config['ALERT_SMS_NEXMO_KEY'], app.config['ALERT_SMS_NEXMO_SECRET'], to, self.datas['mail-closed-object'])
 		return db.closedAlerts.insert(newAlert.datas)
