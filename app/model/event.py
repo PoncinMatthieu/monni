@@ -3,7 +3,9 @@ import datetime
 import json
 from bson import json_util, ObjectId
 
-from app import db
+from app import app, db
+
+DedicatedCollections = app.config.get('DEDICATED_COLLECTIONS', '').split(',')
 
 cached_queries = []
 
@@ -13,13 +15,18 @@ class Event():
 		return json.dumps(self.datas,default=json_util.default)
 
 	@staticmethod
+	def GetCollection(type=None, **kwargs):
+		return "%s" % type.lower() if type in DedicatedCollections else 'events'
+	
+	@staticmethod
 	def FetchTypes():
-		return db.events.aggregate([{'$group': {_id: "$type"}}])
+		event_types = db[Event.GetCollection()].aggregate([{'$group': {'_id': "$type"}}])
+		return event_types + DedicatedCollections
 
 	@staticmethod
 	def FetchAll(findFilter = {}, projection = None, sortBy = None, skip = None, limit = None, distinctKey = None):
 		events = []
-		c = db.events.find(findFilter, projection)
+		c = db[Event.GetCollection(**findFilter)].find(findFilter, projection)
 		if sortBy:
 			c = c.sort(sortBy,-1)
 		if skip:
@@ -46,7 +53,7 @@ class Event():
 		if findFilter == None:
 			findFilter = {}
 		findFilter['sid'] = ObjectId(sid)
-		return db.events.find(findFilter).count()
+		return db[Event.GetCollection(**findFilter)].find(findFilter).count()
 
 	@staticmethod
 	def FetchFromService(sid, findFilter = {}, projection = None, sortBy = None, skip = None, limit = None, distinctKey = None):
@@ -64,11 +71,14 @@ class Event():
 		if findFilter == None:
 			findFilter = {}
 		findFilter['_id'] = ObjectId(eid)
-		return Event.Clone(db.events.find_one({'_id': ObjectId(eid)}, projection))
+		return Event.Clone(db[Event.GetCollection(**findFilter)].find_one({'_id': ObjectId(eid)}, projection))
 
 	@staticmethod
 	def DeleteAllFromService(sid):
-		db.events.remove({'sid': ObjectId(sid)})
+		query = {'sid': ObjectId(sid)}
+		db.events.remove(query)
+		for collection in DedicatedCollections:
+			db[Event.GetCollection(type=collection)].remove(query)
 
 	@staticmethod
 	def Clone(data):
@@ -91,15 +101,15 @@ class Event():
 		self.type = type
 		self.datas = datas
 
-	def Insert(self, collectionName = 'events'):
+	def Insert(self, collectionName = None):
 		data = self.datas
 		data['sid'] = ObjectId(self.sid)
 		data['type'] = self.type
 		newId = None
-		if collectionName == 'events':
-			newId = db.events.insert(data)
-		elif collectionName == 'archivedEvents':
-			newId = db.archivedEvents.insert(data)
+		if collectionName:
+			newId = db[collectionName].insert(data)
+		else:
+			newId = db[Event.GetCollection(type=self.type)].insert(data)
 		if newId != None:
 			self.id = str(newId)
 			return self.id
@@ -112,12 +122,12 @@ class Event():
 		data = self.datas
 		data['sid'] = ObjectId(self.sid)
 		data['type'] = self.type
-		db.events.update({'_id': ObjectId(id)}, {'$set': data})
+		db[Event.GetCollection(type=self.type)].update({'_id': ObjectId(id)}, {'$set': data})
 
 	def Delete(self, id = None):
 		if id == None:
 			id = self.id
-		db.events.remove({'_id': ObjectId(id)})
+		db[Event.GetCollection(type=self.type)].remove({'_id': ObjectId(id)})
 
 	def Archive(self):
 		id = self.id

@@ -18,6 +18,8 @@ PASSWORD =
 DB_NAME = 'monni'
 DB_HOST = 'localhost'
 DB_REPLICA_SET = ''
+# List event types that should be stored in dedicated collections, separate with commas.
+#DEDICATED_COLLECTIONS = 'Heartbeat'
 
 # SMTP configuration
 SMTP_HOST = ''
@@ -32,4 +34,4 @@ ALERT_MAIL_TO = ''
 # SMS Alert with nexmo
 ALERT_SMS_NEXMO_KEY = ''
 ALERT_SMS_NEXMO_SECRET = ''
-ALERT_SMS_TO = []
+#ALERT_SMS_TO = []
