@@ -131,14 +131,28 @@ class Service():
 		status = 0
 		resultMessage = ''
 		try:
-			if self.data[Service.STATUS_CHECK_STRING]['type'] == 'HTTP':
+			status_check_type = self.data[Service.STATUS_CHECK_STRING].get('type', None)
+			if status_check_type == 'HTTP':
 				r = self.Request()
 				if r != None:
 					status = r.status_code
 					if status != 200:
 						resultMessage = r.text
+			elif status_check_type == 'Heartbeat':
+				required_count = self.data[Service.STATUS_CHECK_STRING]['count'] #how many events...
+				required_type = self.data[Service.STATUS_CHECK_STRING].get('event_type', 'Heartbeat') # of this type
+				tag = self.data[Service.STATUS_CHECK_STRING].get('tag', None) # and possibly with the given tag in the message
+				period = int(self.data[Service.STATUS_CHECK_STRING]['minutes']) #in how many minutes do we expect
+				query = {'type': required_type, 
+						'time': {'$gt': datetime.datetime.now() - datetime.timedelta(minutes=period)}}
+				if tag:
+					query['tags'] = tag
+				count = Event.Count(self.id, query)
+				resultMessage = 'Received %d heartbeats %s in last %d minutes' % (count, ("(with '%s')" % tag) if tag else "", period)
+				print resultMessage
+				status = 503 if count < required_count else 200
 			else:
-				print('Service: Unknown service type. Failed to check service status.')
+				print('Service: Unknown status check type. Failed to check service status.')
 		except Exception as e:
 			print('Service: Unknown error, failed to check service status.')
 			print(e)
